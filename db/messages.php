@@ -41,8 +41,8 @@ $messageproviders = array (
     // Message sent when an appointment opened up in a slot being watched.
     'watchedslotopenedup' => [
         'defaults' => [
-            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN + MESSAGE_DEFAULT_LOGGEDOFF,
-            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDOFF
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDOFF,
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN + MESSAGE_DEFAULT_LOGGEDOFF
         ]
     ]
 
