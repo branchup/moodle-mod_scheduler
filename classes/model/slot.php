@@ -86,7 +86,6 @@ class slot extends mvc_child_record_model {
      * Save any changes to the database.
      */
     public function save() {
-        $savewatchers = false;
         $this->data->schedulerid = $this->get_parent()->get_id();
 
         // Compute whether children were removed while the slot was full,
@@ -319,7 +318,7 @@ class slot extends mvc_child_record_model {
      * a requirement, but also that the student does not already have a
      * booking in this slot.
      *
-     * @param int $studentid The student ID.
+     * @param int $userid The student ID.
      * @return bool
      */
     public function is_watchable_by_student($userid) {
