@@ -397,6 +397,7 @@ $string['negativerange'] = 'Range is negative. This can\'t be.';
 $string['never'] = 'Never';
 $string['nfiles'] = '{$a} files';
 $string['noappointments'] = 'No appointments';
+$string['noappointmentsyet'] = 'You do not have any appointments in this scheduler yet.';
 $string['noexistingstudents'] = 'No students available for scheduling';
 $string['nogroups'] = 'No group available for scheduling.';
 $string['noresults'] = 'No results. ';
