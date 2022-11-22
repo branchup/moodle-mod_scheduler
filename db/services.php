@@ -61,6 +61,14 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
     ],
+    'mod_scheduler_studentid' => array(
+        'classname'   => 'mod_scheduler\external',
+        'methodname'  => 'studentid',
+        'description' => 'Retrieve the list of potential studentids.',
+        'type'        => 'read',
+        'ajax'          => true,
+        'services'    => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
+    ),
     'mod_scheduler_unwatch_slot' => [
         'classname' => 'mod_scheduler\\external',
         'methodname' => 'unwatch_slot',
