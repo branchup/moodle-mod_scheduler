@@ -235,6 +235,7 @@ class scheduler_editslot_form extends scheduler_slotform_base {
         // Send e-mail reminder?
         $mform->addElement('date_selector', 'emaildate', get_string('emailreminderondate', 'scheduler'),
                             array('optional'  => true));
+        $mform->addHelpButton('emaildate', 'emailreminderondate', 'mod_scheduler');
         $mform->setDefault('remindersel', -1);
 
         // Slot comments.
@@ -622,6 +623,7 @@ class scheduler_addsession_form extends scheduler_slotform_base {
         }
 
         $mform->addElement('select', 'emaildaterel', get_string('emailreminder', 'scheduler'), $remindersel);
+        $mform->addHelpButton('emaildaterel', 'emailreminder', 'mod_scheduler');
         $mform->setDefault('remindersel', -1);
 
         $this->add_action_buttons();
