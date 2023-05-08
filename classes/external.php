@@ -27,6 +27,7 @@ namespace mod_scheduler;
 defined('MOODLE_INTERNAL') || die();
 
 use coding_exception;
+use core_text;
 use core_user;
 use external_api;
 use external_function_parameters;
@@ -198,8 +199,9 @@ class external extends external_api {
         $bookingdata = (object) $bookingdata;
 
         if ($scheduler->uses_bookingform()) {
-            if ($scheduler->is_studentnotes_required() && static::is_empty($bookingdata->studentnote)) {
-                throw new moodle_exception('studentnotemissing', 'mod_scheduler');
+            $notes = trim(strip_tags($bookingdata->studentnote));
+            if ($scheduler->is_studentnotes_required() && core_text::strlen($notes) < 5) {
+                throw new moodle_exception('notesrequired', 'mod_scheduler');
             }
         }
 
