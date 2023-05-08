@@ -128,7 +128,8 @@ if ($action == 'watchslot') {
     if (!$slot) {
         throw new moodle_exception('error');
     } else if (!$slot->is_watchable_by_student($USER->id)) {
-        throw new moodle_exception('nopermissions');
+        redirect($returnurl, get_string('cannotwatchslot', 'mod_scheduler'), null, \core\output\notification::NOTIFY_ERROR);
+        die();
     }
 
     $watcher = $slot->add_watcher($USER->id);

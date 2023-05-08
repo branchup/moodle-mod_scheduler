@@ -53,6 +53,11 @@ if ($ADMIN->fulltree) {
                      get_string('maxslotswatched_desc', 'mod_scheduler'),
                      3, PARAM_INT));
 
+    $settings->add(new admin_setting_configtext('mod_scheduler/maxwatchers',
+                     get_string('maxwatchers', 'mod_scheduler'),
+                     get_string('maxwatchers_desc', 'mod_scheduler'),
+                     5, PARAM_INT));
+
     $settings->add(new admin_setting_configtext('mod_scheduler/uploadmaxfiles',
                      get_string('uploadmaxfilesglobal', 'scheduler'),
                      get_string('uploadmaxfilesglobal_desc', 'scheduler'),
