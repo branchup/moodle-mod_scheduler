@@ -235,34 +235,13 @@ if ($action == 'cancelbooking') {
 
     // Get the request parameters.
     $slotid = required_param('slotid', PARAM_INT);
-    $slot = $scheduler->get_slot($slotid);
-    if (!$slot) {
-        throw new moodle_exception('error');
+
+    try {
+        mod_scheduler_cancel_slot($scheduler, $slotid, $USER->id, $appointgroup);
+    } catch (moodle_exception $e) {
+        throw $e;
+        \core\notification::error($e->getMessage());
     }
 
-    if (!$slot->is_in_bookable_period()) {
-        throw new moodle_exception('nopermissions');
-    }
-
-    $userstocancel = array($USER->id);
-    if ($appointgroup) {
-        $userstocancel = array_keys($scheduler->get_available_students($appointgroup));
-    }
-
-    foreach ($userstocancel as $userid) {
-        if ($appointment = $slot->get_student_appointment($userid)) {
-            $scheduler->delete_appointment($appointment->id);
-
-            // Notify the teacher.
-            if ($scheduler->allownotifications) {
-                $student = $DB->get_record('user', array('id' => $USER->id));
-                $teacher = $DB->get_record('user', array('id' => $slot->teacherid));
-                scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'cancelled',
-                                                            $student, $teacher, $teacher, $student, $COURSE);
-            }
-            \mod_scheduler\event\booking_removed::create_from_slot($slot)->trigger();
-        }
-    }
     redirect($returnurl);
-
 }

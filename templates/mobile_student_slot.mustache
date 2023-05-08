@@ -4,70 +4,120 @@
 
     <ion-list>
         <ion-item>
-            <h2><% slot.timeformatted.date %></h2>
-            <p><% slot.timeformatted.starttime %> - <% slot.timeformatted.endtime %></p>
+            <ion-label>
+                <h2><% slot.timeformatted.date %></h2>
+                <p><% slot.timeformatted.starttime %> - <% slot.timeformatted.endtime %></p>
+            </ion-label>
         </ion-item>
 
         <ion-item>
-            <h2><% scheduler.teachername %></h2>
-            <p><% slot.teacher.fullname %></p>
+            <ion-label>
+                <h2><% scheduler.teachername %></h2>
+                <p><% slot.teacher.fullname %></p>
+            </ion-label>
         </ion-item>
 
         <%# slot.hasappointmentlocation %>
-        <ion-item text-wrap>
-            <h2><%# str %>location, mod_scheduler<%/ str %></h2>
-            <p><% slot.appointmentlocation %></p>
+        <ion-item class="ion-text-wrap">
+            <ion-label>
+                <h2><%# str %>location, mod_scheduler<%/ str %></h2>
+                <p><% slot.appointmentlocation %></p>
+            </ion-label>
         </ion-item>
         <%/ slot.hasappointmentlocation %>
 
         <%# slot.hasnotes %>
-            <ion-item text-wrap>
-                <h2><%# str %>comments, mod_scheduler<%/ str %></h2>
-                <core-format-text text="<% slot.notesformatted %>" component="mod_scheduler" componentId="<% cmid %>"></core-format-text>
+            <ion-item class="ion-text-wrap">
+                <ion-label>
+                    <h2><%# str %>comments, mod_scheduler<%/ str %></h2>
+                    <core-format-text text="<% slot.notesformatted %>" component="mod_scheduler" componentId="<% cmid %>"></core-format-text>
+                </ion-label>
             </ion-item>
         <%/ slot.hasnotes %>
 
         <%# appointment %>
 
             <%# hasappointmentnote %>
-                <ion-item text-wrap>
-                    <h2><%# str %>appointmentnotes, mod_scheduler<%/ str %></h2>
-                    <core-format-text text="<% appointmentnoteformatted %>" component="mod_scheduler" componentId="<% cmid %>"></core-format-text>
+                <ion-item class="ion-text-wrap">
+                    <ion-label>
+                        <h2><%# str %>appointmentnotes, mod_scheduler<%/ str %></h2>
+                        <core-format-text text="<% appointmentnoteformatted %>" component="mod_scheduler" componentId="<% cmid %>"></core-format-text>
+                    </ion-label>
                 </ion-item>
             <%/ hasappointmentnote %>
 
             <%# hasstudentnote %>
-                <ion-item text-wrap>
-                    <h2><%# str %>yourstudentnote, mod_scheduler<%/ str %></h2>
-                    <core-format-text text="<% studentnoteformatted %>" component="mod_scheduler" componentId="<% cmid %>"></core-format-text>
+                <ion-item class="ion-text-wrap">
+                    <ion-label>
+                        <h2><%# str %>yourstudentnote, mod_scheduler<%/ str %></h2>
+                        <core-format-text text="<% studentnoteformatted %>" component="mod_scheduler" componentId="<% cmid %>"></core-format-text>
+                    </ion-label>
                 </ion-item>
             <%/ hasstudentnote %>
 
             <%# scheduler.usesgrades %>
                 <ion-item>
-                    <h2><%# str %>grade, mod_scheduler<%/ str %></h2>
-                    <p><% gradeformatted %></p>
+                    <ion-label>
+                        <h2><%# str %>grade, mod_scheduler<%/ str %></h2>
+                        <p><% gradeformatted %></p>
+                    </ion-label>
                 </ion-item>
             <%/ scheduler.usesgrades %>
 
             <%^ slot.isexclusive %>
                 <%# slot.hasappointments %>
-                    <ion-list-header no-margin>
-                        <%# str %>students, mod_scheduler<%/ str %>
+                    <ion-list-header>
+                        <ion-label>
+                            <%# str %>students, mod_scheduler<%/ str %>
+                        </ion-label>
                     </ion-list-header>
                     <%# slot.appointments %>
-                        <a ion-item core-user-link userId="<% student.id %>" courseId="<% courseid %>">
-                            <ion-avatar core-user-avatar profileUrl="<% student.profileimageurl %>" item-start></ion-avatar>
+                    <ion-item button core-user-link userId="<% student.id %>" courseId="<% courseid %>">
+                        <core-user-avatar profileUrl="<% student.profileimageurl %>" slot="start"></core-user-avatar>
+                        <ion-label>
                             <h2><% student.fullname %></h2>
-                        </a>
+                        </ion-label>
+                    </ion-item>
                     <%/ slot.appointments %>
                 <%/ slot.hasappointments %>
             <%/ slot.isexclusive %>
 
             <%# slot.iseditable %>
-                <ion-item text-wrap>
-                    <p><%# str %>visitwebtoeditcancel, mod_scheduler, <% scheduler.weburl %><%/ str %></p>
-                </ion-item>
+                <%^ scheduler.isinappbookingsupported %>
+                    <ion-item class="ion-text-wrap">
+                        <ion-label>
+                            <p><%# str %>visitwebtoeditcancel, mod_scheduler, <% scheduler.weburl %><%/ str %></p>
+                        </ion-label>
+                    </ion-item>
+                <%/ scheduler.isinappbookingsupported %>
+                <%# scheduler.isinappbookingsupported %>
+                    <ion-item>
+                        <ion-label>
+                        <%# scheduler.isgroupbookingenabled %>
+                            <!-- When group booking is allowed, we always show the booking form so that
+                                the user can select themselves (if allowed) or the relevant group. -->
+                            <ion-button fill="outline" expand="block"
+                                    core-site-plugins-new-content
+                                    method="cancel_booking"
+                                    [args]="{cmid: <% cmid %>, id: <% slot.id %>}"
+                                    title="<%# str %>cancelbooking, mod_scheduler<%/ str %>">
+                                <%# str %>cancelbooking, mod_scheduler<%/ str %>
+                            </ion-button>
+                        <%/ scheduler.isgroupbookingenabled %>
+                        <%^ scheduler.isgroupbookingenabled %>
+                            <ion-button fill="outline" expand="block"
+                                    core-site-plugins-call-ws
+                                    name="mod_scheduler_cancel_booking"
+                                    [params]="{cmid: <% cmid %>, slotid: <% slot.id %>}"
+                                    [preSets]="{getFromCache: 0, saveToCache: 0}"
+                                    refreshOnSuccess="true">
+                                <%# str %>cancelbooking, mod_scheduler<%/ str %>
+                            </ion-button>
+                        <%/ scheduler.isgroupbookingenabled %>
+                        </ion-label>
+                    </ion-item>
+                <%/ scheduler.isinappbookingsupported %>
+
             <%/ slot.iseditable %>
 
         <%/ appointment %>
@@ -75,73 +125,73 @@
         <%^ appointment %>
             <%# slot.canbookslot %>
                 <%^ scheduler.isinappbookingsupported %>
-                    <ion-item text-wrap>
-                        <a href="<% scheduler.weburl %>" ion-button core-link outline block autoLogin="yes" inApp="false">
-                            <%# str %>visitwebtobook, mod_scheduler<%/ str %>
-                        </a>
+                    <ion-item class="ion-text-wrap">
+                        <ion-label>
+                            <a href="<% scheduler.weburl %>" ion-button core-link outline block autoLogin="yes" inApp="false">
+                                <%# str %>visitwebtobook, mod_scheduler<%/ str %>
+                            </a>
+                        </ion-label>
                     </ion-item>
                 <%/ scheduler.isinappbookingsupported %>
                 <%# scheduler.isinappbookingsupported %>
                     <ion-item>
+                        <ion-label>
                         <%# scheduler.usesbookingform %>
-                            <button ion-button outline block
+                            <ion-button fill="outline" expand="block"
                                     core-site-plugins-new-content
                                     method="book_slot"
                                     [args]="{cmid: <% cmid %>, id: <% slot.id %>}"
                                     title="<%# str %>bookslot, mod_scheduler<%/ str %>">
                                 <%# str %>bookslot, mod_scheduler<%/ str %>
-                            </button>
+                            </ion-button>
                         <%/ scheduler.usesbookingform %>
                         <%^ scheduler.usesbookingform %>
                             <%# scheduler.isgroupbookingenabled %>
                                 <!-- When group booking is allowed, we always show the booking form so that
                                     the user can select themselves (if allowed) or the relevant group. -->
-                                <button ion-button outline block
+                                <ion-button fill="outline" expand="block"
                                         core-site-plugins-new-content
                                         method="book_slot"
                                         [args]="{cmid: <% cmid %>, id: <% slot.id %>}"
                                         title="<%# str %>bookslot, mod_scheduler<%/ str %>">
                                     <%# str %>bookslot, mod_scheduler<%/ str %>
-                                </button>
+                                </ion-button>
                             <%/ scheduler.isgroupbookingenabled %>
                             <%^ scheduler.isgroupbookingenabled %>
-                                <button ion-button outline block
+                                <ion-button fill="outline" expand="block"
                                         core-site-plugins-call-ws
                                         name="mod_scheduler_book_slot"
                                         [params]="{cmid: <% cmid %>, slotid: <% slot.id %>}"
                                         [preSets]="{getFromCache: 0, saveToCache: 0}"
                                         refreshOnSuccess="true">
                                     <%# str %>bookslot, mod_scheduler<%/ str %>
-                                </button>
+                                </ion-button>
                             <%/ scheduler.isgroupbookingenabled %>
                         <%/ scheduler.usesbookingform %>
+                        </ion-label>
                     </ion-item>
                 <%/ scheduler.isinappbookingsupported %>
             <%/ slot.canbookslot %>
 
             <%# slot.canwatchslot %>
                 <%^ slot.iswatching %>
-                    <ion-item>
-                        <button ion-button outline block
+                    <ion-item button fill="outline" expand="block"
                                 core-site-plugins-call-ws
                                 name="mod_scheduler_watch_slot"
                                 [params]="{cmid: <% cmid %>, slotid: <% slot.id %>}"
                                 [preSets]="{getFromCache: 0, saveToCache: 0, typeExpected: 'boolean'}"
                                 refreshOnSuccess="true">
                             <%# str %>watchslot, mod_scheduler<%/ str %>
-                        </button>
                     </ion-item>
                 <%/ slot.iswatching %>
                 <%# slot.iswatching %>
-                    <ion-item>
-                        <button ion-button outline block
+                    <ion-item button fill="outline" expand="block"
                                 core-site-plugins-call-ws
                                 name="mod_scheduler_unwatch_slot"
                                 [params]="{cmid: <% cmid %>, slotid: <% slot.id %>}"
                                 [preSets]="{getFromCache: 0, saveToCache: 0, typeExpected: 'boolean'}"
                                 refreshOnSuccess="true">
                             <%# str %>unwatchslot, mod_scheduler<%/ str %>
-                        </button>
                     </ion-item>
                 <%/ slot.iswatching %>
             <%/ slot.canwatchslot %>

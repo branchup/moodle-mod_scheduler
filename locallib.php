@@ -442,6 +442,55 @@ function mod_scheduler_book_slot($scheduler, $slotid, $userid, $groupid, $formda
 }
 
 /**
+ * Cancel a booking.
+ *
+ * @param scheduler $scheduler The scheduler.
+ * @param int $slotid The slot ID.
+ * @param int $userid The user ID.
+ * @param int $groupid The group ID, or 0.
+ */
+function mod_scheduler_cancel_slot($scheduler, $slotid, $userid, $groupid) {
+    global $DB;
+
+    $slot = $scheduler->get_slot($slotid);
+    if (!$slot) {
+        throw new moodle_exception('error');
+    }
+
+    if (!$slot->is_in_bookable_period()) {
+        throw new moodle_exception('nopermissions');
+    }
+
+    if ($groupid > 0 && !$scheduler->is_group_scheduling_enabled()) {
+        throw new moodle_exception('error');
+    } else if (!$groupid && !$scheduler->is_individual_scheduling_enabled()) {
+        throw new moodle_exception('error');
+    } else if ($groupid < 0) {
+        throw new moodle_exception('error');
+    }
+
+    $userstocancel = array($userid);
+    if ($groupid) {
+        $userstocancel = array_keys($scheduler->get_available_students($groupid));
+    }
+
+    foreach ($userstocancel as $userid) {
+        if ($appointment = $slot->get_student_appointment($userid)) {
+            $scheduler->delete_appointment($appointment->id);
+
+            // Notify the teacher.
+            if ($scheduler->allownotifications) {
+                $student = $DB->get_record('user', array('id' => $userid));
+                $teacher = $DB->get_record('user', array('id' => $slot->teacherid));
+                scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'cancelled',
+                                                            $student, $teacher, $teacher, $student, $scheduler->get_courserec());
+            }
+            \mod_scheduler\event\booking_removed::create_from_slot($slot)->trigger();
+        }
+    }
+}
+
+/**
  * Save the booking data.
  *
  * @param appointment $appointment The appointment.

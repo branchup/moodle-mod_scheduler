@@ -44,6 +44,7 @@ use scheduler_messenger;
 use stored_file;
 
 require_once($CFG->libdir . '/externallib.php');
+require_once($CFG->libdir . '/grouplib.php');
 require_once($CFG->dirroot . '/mod/scheduler/mailtemplatelib.php');
 
 /**
@@ -204,6 +205,8 @@ class external extends external_api {
 
         if (!$scheduler->is_individual_scheduling_enabled() && !$groupid) {
             throw new moodle_exception('choosegrouptobook', 'mod_scheduler');
+        } else if ($groupid && !groups_is_member($groupid)) {
+            throw new moodle_exception('invalidgroupid', 'core_error');
         }
 
         $formdata = (object) [];
@@ -225,6 +228,73 @@ class external extends external_api {
      */
     public static function book_slot_returns() {
         return static::appointment_structure();
+    }
+
+    /**
+     * External function parameters.
+     *
+     * @return external_function_parameters
+     */
+    public static function cancel_booking_parameters() {
+        return new external_function_parameters([
+            'cmid' => new external_value(PARAM_INT),
+            'slotid' => new external_value(PARAM_INT),
+            'groupid' => new external_value(PARAM_INT, '', VALUE_DEFAULT, 0)
+        ]);
+    }
+
+    /**
+     * Book a slot.
+     *
+     * @param int $cmid The cmid.
+     * @param int $slotid The slot ID.
+     * @param int $groupid The group ID, if any.
+     * @return true
+     */
+    public static function cancel_booking($cmid, $slotid, $groupid = 0) {
+        global $USER;
+
+        $params = self::validate_parameters(self::cancel_booking_parameters(), ['cmid' => $cmid, 'slotid' => $slotid,
+            'groupid' => $groupid]);
+        $cmid = $params['cmid'];
+        $slotid = $params['slotid'];
+        $groupid = $params['groupid'];
+
+        $scheduler = scheduler::load_by_coursemodule_id($cmid);
+        $context = $scheduler->get_context();
+        self::validate_context($context);
+        $permissions = new scheduler_permissions($context, $USER->id);
+
+        $permissions->ensure($permissions->is_student());
+        require_capability('mod/scheduler:appoint', $context);
+        $slot = $scheduler->get_slot($slotid);
+
+        if (!static::is_in_app_booking_supported($scheduler)) {
+            throw new moodle_exception('bookingnotsupported', 'mod_scheduler');
+        } else if (!$slot->is_booked_by_student($USER->id)) {
+            throw new moodle_exception('cannotcancelslot', 'mod_scheduler');
+        } else if (!$slot->is_in_bookable_period()) {
+            throw new moodle_exception('cannotcancelslot', 'mod_scheduler');
+        }
+
+        if (!$scheduler->is_individual_scheduling_enabled() && !$groupid) {
+            throw new moodle_exception('choosegrouptobook', 'mod_scheduler');
+        } else if ($groupid && !groups_is_member($groupid)) {
+            throw new moodle_exception('invalidgroupid', 'core_error');
+        }
+
+        mod_scheduler_cancel_slot($scheduler, $slotid, $USER->id, $groupid);
+
+        return true;
+    }
+
+    /**
+     * External function return structure.
+     *
+     * @return external_value
+     */
+    public static function cancel_booking_returns() {
+        return new external_value(PARAM_BOOL);
     }
 
     /**
