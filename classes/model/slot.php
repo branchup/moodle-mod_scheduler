@@ -322,7 +322,8 @@ class slot extends mvc_child_record_model {
     public function is_watchable_by_student($userid) {
         return $this->is_watchable()
             && $this->count_remaining_appointments() === 0
-            && !$this->is_booked_by_student($userid);
+            && !$this->is_booked_by_student($userid)
+            && !$this->is_watchlist_full();
     }
 
     /**
@@ -342,12 +343,32 @@ class slot extends mvc_child_record_model {
     }
 
     /**
+     * Whether the watchlist is full.
+     *
+     * @return bool
+     */
+    public function is_watchlist_full() {
+        $maxwatchers = $this->get_maximum_watchers();
+        $nwatchers = $this->watchers->get_child_count();
+        return $maxwatchers > 0 && $nwatchers >= $maxwatchers;
+    }
+
+    /**
      * Count the number of appointments in this slot
      *
      * @return int
      */
     public function get_appointment_count() {
         return $this->appointments->get_child_count();
+    }
+
+    /**
+     * Whether the watchlist is full.
+     *
+     * @return bool
+     */
+    public function get_maximum_watchers() {
+        return $this->get_scheduler()->get_maximum_watchers();
     }
 
     /**
@@ -366,7 +387,6 @@ class slot extends mvc_child_record_model {
         }
         return $studapp;
     }
-
 
     /**
      * Has the slot been attended?
