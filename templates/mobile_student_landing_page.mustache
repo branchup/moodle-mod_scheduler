@@ -5,16 +5,18 @@
 
 <core-course-module-description description="<% scheduler.intro %>" component="mod_scheduler" componentId="<% cmid %>"></core-course-module-description>
 
-<div padding class="mod_scheduler-student-view">
+<div class="ion-padding mod_scheduler-student-view">
 
     <%# haspastslots %>
         <h3><%# str %>attendedslots, mod_scheduler<%/ str %></h3>
         <ion-list>
             <%#pastslots%>
-                <button ion-item core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
-                    <h2><% timeformatted.date %></h2>
-                    <p><% timeformatted.starttime %> - <% timeformatted.endtime %></p>
-                </button>
+                <ion-item button core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
+                    <ion-label>
+                        <h2><% timeformatted.date %></h2>
+                        <p><% timeformatted.starttime %> - <% timeformatted.endtime %></p>
+                    </ion-label>
+                </ion-item>
             <%/pastslots%>
         </ion-list>
     <%/ haspastslots %>
@@ -23,10 +25,12 @@
         <h3><%# str %>upcomingslots, mod_scheduler<%/ str %></h3>
         <ion-list>
             <%#upcomingslots%>
-                <button ion-item core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
-                    <h2><% timeformatted.date %></h2>
-                    <p><% timeformatted.starttime %> - <% timeformatted.endtime %></p>
-                </button>
+                <ion-item button core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
+                    <ion-label>
+                        <h2><% timeformatted.date %></h2>
+                        <p><% timeformatted.starttime %> - <% timeformatted.endtime %></p>
+                    </ion-label>
+                </ion-item>
             <%/upcomingslots%>
         </ion-list>
     <%/ hasupcomingslots %>
@@ -44,27 +48,27 @@
         <%/ bookingmessage %>
         <ion-list>
             <%#bookableslots%>
-                <button ion-item core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
-                    <h2><% timeformatted.date %></h2>
-                    <p>
-                        <% timeformatted.starttime %> - <% timeformatted.endtime %>
-                        <!--<%# hasappointmentlocation %> @ <% appointmentlocation %> <%/ hasappointmentlocation %> -->
-                    </p>
+                <ion-item button core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
+                    <ion-label>
+                        <h2><% timeformatted.date %></h2>
+                        <p>
+                            <% timeformatted.starttime %> - <% timeformatted.endtime %>
+                            <!--<%# hasappointmentlocation %> @ <% appointmentlocation %> <%/ hasappointmentlocation %> -->
+                        </p>
+                    </ion-label>
                     <%^ isunlimited %>
                         <%^ isfull %>
-                            <ion-note item-end><% ntaken %> / <% maxappointments %></ion-note>
+                            <ion-note slot="end"><% ntaken %> / <% maxappointments %></ion-note>
                         <%/ isfull %>
                         <%# isfull %>
-                            <ion-note item-end><%# str %>full, mod_scheduler<%/ str %></ion-note>
+                            <ion-note slot="end"><%# str %>full, mod_scheduler<%/ str %></ion-note>
                         <%/ isfull %>
                     <%/ isunlimited %>
-                </button>
+                </ion-item>
             <%/bookableslots%>
             <%#hasmorebookableslots%>
-                <ion-item>
-                    <button ion-button clear block core-site-plugins-new-content method="student_bookable_slots" [args]="{cmid: <% cmid %>, page: 0}" title="<%# str %>availableslots, mod_scheduler<%/ str %>">
-                        <%# str %>viewmoreoptions, mod_scheduler<%/ str %>
-                    </button>
+                <ion-item button fill="clear" expand="block" core-site-plugins-new-content method="student_bookable_slots" [args]="{cmid: <% cmid %>, page: 0}" title="<%# str %>availableslots, mod_scheduler<%/ str %>">
+                    <%# str %>viewmoreoptions, mod_scheduler<%/ str %>
                 </ion-item>
             <%/hasmorebookableslots%>
         </ion-list>

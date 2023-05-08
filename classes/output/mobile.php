@@ -182,6 +182,59 @@ class mobile {
     }
 
     /**
+     * Cancel booking view.
+     *
+     * @param array $args The arguments.
+     * @return array
+     */
+    public static function cancel_booking($args) {
+        global $USER;
+
+        $args = (object) $args;
+        $slotid = (int) $args->id;
+
+        $pre = static::pre($args);
+        $permissions = $pre->permissions;
+        $scheduler = $pre->scheduler;
+        $renderer = $pre->renderer;
+        $context = $scheduler->get_context();
+        $userid = $USER->id;
+
+        require_capability('mod/scheduler:appoint', $context);
+        $slot = $scheduler->get_slot($slotid);
+        $data = static::get_common_data($scheduler);
+
+        if (!$data['scheduler']->isinappbookingsupported) {
+            throw new moodle_exception('bookingnotsupported', 'mod_scheduler');
+        } else if (!$slot->is_in_bookable_period()) {
+            throw new moodle_exception('error');
+        }
+
+        $groups = [];
+        if ($scheduler->is_group_scheduling_enabled()) {
+            $groups = groups_get_all_groups($scheduler->courseid, $userid, $scheduler->bookingrouping, 'g.id, g.name');
+        }
+
+        $data = array_merge($data, [
+            'slot' => external::serialize_slot($slot),
+            'hasgroups' => !empty($groups),
+            'groups' => array_values($groups),
+        ]);
+
+        return [
+            'templates' => [
+                [
+                    'id' => 'cancel_booking',
+                    'html' => $renderer->render_from_template('mod_scheduler/mobile_cancel_booking', $data)
+                ]
+            ],
+            'javascript' => '',
+            'otherdata' => '',
+            'files' => [],
+        ];
+    }
+
+    /**
      * Landing page.
      *
      * @param array $args The args.
