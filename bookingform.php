@@ -82,7 +82,7 @@ class scheduler_booking_form extends moodleform {
             $mform->addElement('editor', 'studentnote_editor', get_string('yourstudentnote', 'scheduler'),
                                 array('rows' => 3, 'columns' => 60), $this->noteoptions);
             $mform->setType('studentnote', PARAM_RAW); // Must be PARAM_RAW for rich text editor content.
-            if ($scheduler->usestudentnotes == 2) {
+            if ($scheduler->is_studentnotes_required()) {
                 $mform->addRule('studentnote_editor', get_string('notesrequired', 'scheduler'), 'required');
             }
         }
@@ -118,8 +118,9 @@ class scheduler_booking_form extends moodleform {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+        $scheduler = $this->slot->get_scheduler();
 
-        if (!$this->existing && $this->slot->get_scheduler()->uses_bookingcaptcha()) {
+        if (!$this->existing && $scheduler->uses_bookingcaptcha()) {
             $recaptcha = $this->_form->getElement('bookingcaptcha');
             if (!empty($this->_form->_submitValues['g-recaptcha-response'])) {
                 $response = $this->_form->_submitValues['g-recaptcha-response'];
@@ -128,6 +129,14 @@ class scheduler_booking_form extends moodleform {
                 }
             } else {
                 $errors['bookingcaptcha'] = get_string('missingrecaptchachallengefield');
+            }
+        }
+
+        // Ensure that the student does not avoid entering data by adding a single character.
+        if ($scheduler->uses_studentnotes() && $scheduler->is_studentnotes_required()) {
+            $text = trim(strip_tags($data['studentnote'] = $data['studentnote_editor']['text']));
+            if (core_text::strlen($text) < 5) {
+                $errors['studentnote_editor'] = get_string('notesrequired', 'scheduler');
             }
         }
 
