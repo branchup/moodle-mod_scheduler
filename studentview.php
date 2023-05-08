@@ -224,7 +224,7 @@ if (!$canseefull && $bookablecnt == 0) {
         }
 
         $isslotwatchable = $slot->is_watchable_by_student($USER->id);
-        $iswatching = $isslotwatchable && $slot->is_watched_by_student($USER->id);
+        $iswatching = $slot->is_watched_by_student($USER->id);
         $canwatchthisslot = ($canwatchmoreslots && $isslotwatchable) || $iswatching;
         $booker->add_slot($slot, $canbookthisslot, false, $groupinfo, $others, $canwatchthisslot, $iswatching);
     }

@@ -534,7 +534,7 @@ class external extends external_api {
         if (!$slot) {
             throw new moodle_exception('error');
         } else if (!$slot->is_watchable_by_student($USER->id)) {
-            throw new moodle_exception('nopermissions');
+            throw new moodle_exception('cannotwatchslot', 'mod_scheduler');
         }
 
         $watcher = $slot->add_watcher($USER->id);
@@ -795,7 +795,7 @@ class external extends external_api {
 
         $canbookslot = $canbookslots && $nremaining != 0 && $slot->is_in_bookable_period();
         $isslotwatchable = $slot->is_watchable_by_student($USER->id);
-        $iswatching = $isslotwatchable && $slot->is_watched_by_student($USER->id);
+        $iswatching = $slot->is_watched_by_student($USER->id);
         $canwatchslot = ($canwatchslots && $isslotwatchable) || $iswatching;
 
         $appointments = array_map(function($app) {

@@ -334,6 +334,16 @@ class scheduler extends mvc_record_model {
     }
 
     /**
+     * The maximum number of watchers per slot.
+     *
+     * @return int Where 0 means unlimited.
+     */
+    public function get_maximum_watchers() {
+        $config = get_config('mod_scheduler');
+        return isset($config->maxwatchers) ? (int) $config->maxwatchers : 0;
+    }
+
+    /**
      * Whether this scheduler supports watching.
      *
      * @return bool
