@@ -47,6 +47,13 @@ $functions = [
         'type' => 'write',
         'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile']
     ],
+    'mod_scheduler_cancel_booking' => [
+        'classname' => 'mod_scheduler\\external',
+        'methodname' => 'cancel_booking',
+        'description' => 'Cancel a booking',
+        'type' => 'write',
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile']
+    ],
     'mod_scheduler_revoke_appointment' => [
         'classname' => 'mod_scheduler\\external',
         'methodname' => 'revoke_appointment',

@@ -4,15 +4,19 @@
 
     <ion-list>
         <ion-item>
-            <h2><% slot.timeformatted.date %></h2>
-            <p><% slot.timeformatted.starttime %> - <% slot.timeformatted.endtime %></p>
+            <ion-label>
+                <h2><% slot.timeformatted.date %></h2>
+                <p><% slot.timeformatted.starttime %> - <% slot.timeformatted.endtime %></p>
+            </ion-label>
         </ion-item>
 
         <%# scheduler.hasbookinginstructions %>
         <ion-item text-wrap>
-            <h2><%# str %>bookinginstructions, mod_scheduler<%/ str %></h2>
-            <core-format-text text="<% scheduler.bookinginstructionsformatted %>" component="mod_scheduler"
-                componentId="<% cmid %>"></core-format-text>
+            <ion-label>
+                <h2><%# str %>bookinginstructions, mod_scheduler<%/ str %></h2>
+                <core-format-text text="<% scheduler.bookinginstructionsformatted %>" component="mod_scheduler"
+                    componentId="<% cmid %>"></core-format-text>
+            </ion-label>
         </ion-item>
         <%/ scheduler.hasbookinginstructions %>
 
@@ -24,18 +28,18 @@
             <ion-select interface="popover" name="groupid" [(ngModel)]="groupid"
                     aria-labelledby="mod-scheduler-book-slot-groupid">
                 <%# scheduler.isindividualbookingenabled %>
-                    <ion-option value="0" selected><%# str %>myself, mod_scheduler<%/ str %></ion-option>
+                    <ion-select-option value="0" selected><%# str %>myself, mod_scheduler<%/ str %></ion-select-option>
                 <%/ scheduler.isindividualbookingenabled %>
                 <%# groups %>
-                    <ion-option value="<% id %>"><% name %></ion-option>
+                    <ion-select-option value="<% id %>"><% name %></ion-select-option>
                 <%/ groups %>
             </ion-select>
         </ion-item>
         <%/ scheduler.isgroupbookingenabled %>
 
         <%# scheduler.usesstudentnotes %>
-        <ion-item text-wrap>
-            <ion-label stacked>
+        <ion-item class="ion-text-wrap">
+            <ion-label position="stacked">
                 <h2
                     <%# isstudentnotesrequired %>[core-mark-required]="true"<%/ isstudentnotesrequired %>
                     >
@@ -50,18 +54,22 @@
         <ion-input type="hidden" [ngModel]="groupid" name="groupid"></ion-input>
 
         <ion-item>
-            <button ion-button block
-                    core-site-plugins-call-ws
-                    name="mod_scheduler_book_slot"
-                    [params]="{cmid: <% cmid %>, slotid: <% slot.id %>, groupid: groupid, bookingdata: {studentnote: studentnote, studentnoteformat: 2}}"
-                    [preSets]="{getFromCache: 0, saveToCache: 0}"
-                    goBackOnSuccess="true">
-                <%# str %>confirmbooking, mod_scheduler<%/ str %>
-            </button>
+            <ion-label>
+                <ion-button fill="outline" expand="block"
+                        core-site-plugins-call-ws
+                        name="mod_scheduler_book_slot"
+                        [params]="{cmid: <% cmid %>, slotid: <% slot.id %>, groupid: groupid, bookingdata: {studentnote: studentnote, studentnoteformat: 2}}"
+                        [preSets]="{getFromCache: 0, saveToCache: 0}"
+                        goBackOnSuccess="true">
+                    <%# str %>confirmbooking, mod_scheduler<%/ str %>
+                </ion-button>
+            </ion-label>
         </ion-item>
 
-        <ion-item text-wrap>
-            <p><%# str %>visitwebtouploadfiles, mod_scheduler, <% scheduler.weburl %><%/ str %></p>
+        <ion-item class="ion-text-wrap">
+            <ion-label>
+                <p><%# str %>visitwebtouploadfiles, mod_scheduler, <% scheduler.weburl %><%/ str %></p>
+            </ion-label>
         </ion-item>
 
     </ion-list>
