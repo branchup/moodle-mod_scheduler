@@ -67,8 +67,12 @@
                 </ion-item>
             <%/bookableslots%>
             <%#hasmorebookableslots%>
-                <ion-item button fill="clear" expand="block" core-site-plugins-new-content method="student_bookable_slots" [args]="{cmid: <% cmid %>, page: 0}" title="<%# str %>availableslots, mod_scheduler<%/ str %>">
-                    <%# str %>viewmoreoptions, mod_scheduler<%/ str %>
+                <ion-item>
+                    <ion-label>
+                        <ion-button fill="clear" expand="block" core-site-plugins-new-content method="student_bookable_slots" [args]="{cmid: <% cmid %>, page: 0}" title="<%# str %>availableslots, mod_scheduler<%/ str %>">
+                            <%# str %>viewmoreoptions, mod_scheduler<%/ str %>
+                        </ion-button>
+                    </ion-label>
                 </ion-item>
             <%/hasmorebookableslots%>
         </ion-list>

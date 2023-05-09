@@ -4,33 +4,39 @@
     <ion-list>
         <%#hasprev%>
             <ion-item>
-                <button ion-button clear block core-site-plugins-new-content method="teacher_slots" [args]="{cmid: <% cmid %>, page: <% prevpage %>}" samePage="true">
-                    <%# str %>previous<%/ str %>
-                </button>
+                <ion-label>
+                    <ion-button fill="clear" expand="block" core-site-plugins-new-content method="teacher_slots" [args]="{cmid: <% cmid %>, page: <% prevpage %>}" samePage="true">
+                        <%# str %>previous<%/ str %>
+                    </ion-button>
+                </ion-label>
             </ion-item>
         <%/hasprev%>
         <%#slots%>
-            <button ion-item core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
-                <h2><% timeformatted.date %></h2>
-                <p><% timeformatted.starttime %> - <% timeformatted.endtime %></p>
+            <ion-item button core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
+                <ion-label>
+                    <h2><% timeformatted.date %></h2>
+                    <p><% timeformatted.starttime %> - <% timeformatted.endtime %></p>
+                </ion-label>
                 <%# isunlimited %>
-                    <ion-note item-end><% ntaken %></ion-note>
+                    <ion-note slot="end"><% ntaken %></ion-note>
                 <%/ isunlimited %>
                 <%^ isunlimited %>
                     <%^ isfull %>
-                        <ion-note item-end><% ntaken %> / <% maxappointments %></ion-note>
+                        <ion-note slot="end"><% ntaken %> / <% maxappointments %></ion-note>
                     <%/ isfull %>
                     <%# isfull %>
-                        <ion-note item-end><%# str %>complete, mod_scheduler<%/ str %></ion-note>
+                        <ion-note slot="end"><%# str %>complete, mod_scheduler<%/ str %></ion-note>
                     <%/ isfull %>
                 <%/ isunlimited %>
-            </button>
+            </ion-item>
         <%/slots%>
         <%#hasnext%>
             <ion-item>
-                <button ion-button clear block core-site-plugins-new-content method="teacher_slots" [args]="{cmid: <% cmid %>, page: <% nextpage %>}" samePage="true">
-                    <%# str %>next <%/ str %>
-                </button>
+                <ion-label>
+                    <ion-button fill="clear" expand="block" core-site-plugins-new-content method="teacher_slots" [args]="{cmid: <% cmid %>, page: <% nextpage %>}" samePage="true">
+                        <%# str %>next <%/ str %>
+                    </ion-button>
+                </ion-label>
             </ion-item>
         <%/hasnext%>
     </ion-list>

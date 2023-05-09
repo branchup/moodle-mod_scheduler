@@ -4,8 +4,12 @@
 
     <ion-list>
         <%#hasprev%>
-            <ion-item button fill="clear" expand="block" core-site-plugins-new-content method="student_bookable_slots" [args]="{cmid: <% cmid %>, page: <% prevpage %>}" samePage="true">
-                <%# str %>previous<%/ str %>
+            <ion-item>
+                <ion-label>
+                    <ion-button fill="clear" expand="block" core-site-plugins-new-content method="student_bookable_slots" [args]="{cmid: <% cmid %>, page: <% prevpage %>}" samePage="true">
+                        <%# str %>previous<%/ str %>
+                    </ion-button>
+                </ion-label>
             </ion-item>
         <%/hasprev%>
         <%#slots%>
@@ -25,8 +29,12 @@
             </ion-item>
         <%/slots%>
         <%#hasnext%>
-            <ion-item button fill="clear" expand="block" core-site-plugins-new-content method="student_bookable_slots" [args]="{cmid: <% cmid %>, page: <% nextpage %>}" samePage="true">
-                <%# str %>next<%/ str %>
+            <ion-item>
+                <ion-label>
+                    <ion-button fill="clear" expand="block" core-site-plugins-new-content method="student_bookable_slots" [args]="{cmid: <% cmid %>, page: <% nextpage %>}" samePage="true">
+                        <%# str %>next<%/ str %>
+                    </ion-button>
+                </ion-label>
             </ion-item>
         <%/hasnext%>
     </ion-list>
