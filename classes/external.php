@@ -859,8 +859,9 @@ class external extends external_api {
         $permissions = new scheduler_permissions($context, $USER->id);
         $nremaining = $slot->count_remaining_appointments();
 
+        $canseefull = has_capability('mod/scheduler:viewfullslots', $context);
         $canbookslots = has_capability('mod/scheduler:appoint', $context);
-        $canwatchslots = has_capability('mod/scheduler:appoint', $context)
+        $canwatchslots = has_capability('mod/scheduler:watchslots', $context)
             && $slot->get_scheduler()->is_watching_enabled()
             && $slot->get_scheduler()->student_can_watch_more_slots($USER->id);
         $canseeothers = has_capability('mod/scheduler:seeotherstudentsbooking', $context);
@@ -869,11 +870,12 @@ class external extends external_api {
         $isslotwatchable = $slot->is_watchable_by_student($USER->id);
         $iswatching = $slot->is_watched_by_student($USER->id);
         $canwatchslot = ($canwatchslots && $isslotwatchable) || $iswatching;
+        $canseeothersinslot = $canseeothers && ($canbookslot || $canseefull);
 
         $appointments = array_map(function($app) {
             return static::serialize_appointment($app);
-        }, array_filter($slot->get_appointments(), function($app) use ($canseeothers, $permissions) {
-            if ($permissions->is_student() && $canseeothers) {
+        }, array_filter($slot->get_appointments(), function($app) use ($canseeothersinslot, $permissions) {
+            if ($permissions->is_student() && $canseeothersinslot) {
                 return true;
             }
             return $permissions->can_see_appointment($app);
@@ -900,6 +902,7 @@ class external extends external_api {
             'hasappointmentlocation' => !static::is_empty($slot->appointmentlocation),
 
             'canbookslot' => $canbookslot,
+            'canseeothersinslot' => $canseeothersinslot,
             'canwatchslot' => $canwatchslot,
             'iswatching' => $iswatching,
 
