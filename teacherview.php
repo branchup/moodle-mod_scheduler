@@ -32,6 +32,7 @@ $tfstarttime = optional_param('tfstarttime', null, PARAM_INT);
 $tfstarttimeop = optional_param('tfstarttimeop', null, PARAM_INT);
 $tflocation = optional_param('tflocation', null, PARAM_RAW);
 $tfteacherid = optional_param('tfteacherid', null, PARAM_INT);
+$tmode = optional_param('tmode', 1, PARAM_INT);
 
 /**
  * Print a selection box of existing slots to be scheduler in
@@ -145,6 +146,7 @@ if ($tsort !== null) {
 if ($tdir !== null) {
     $baseurl->param('tdir', $tdir);
 }
+$baseurl->param('tmode', $tmode);
 
 // Collect the filters received.
 $filters = array_filter([
@@ -479,6 +481,17 @@ $qb = $scheduler->get_slots_query_builder();
 $qb->set_teacherid($teacherid);
 $qb->set_groupid($slotgroup);
 
+// Apply the mode filtering.
+if ($tmode === 1) {
+    $qb->filter_current();
+} else if ($tmode === 2) {
+    $qb->filter_ended_or_all_seen();
+    if (empty($tsort)) {
+        $tsort = 'starttime';
+        $tdir = -1;
+    }
+}
+
 // Organise order by.
 if (empty($tsort)) {
     $tsort = 'starttime';
@@ -542,6 +555,8 @@ $qb->set_limit($pagesize, $offset * $pagesize);
 $slots = $scheduler->get_slots_from_query_builder($qb);
 
 echo $output->heading(get_string('slots', 'scheduler'));
+
+echo $output->teacherview_slot_tabs($baseurl, $tmode);
 
 // Print filter form.
 $filterform->display();

@@ -392,6 +392,35 @@ class mod_scheduler_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Slot tabs for teacher view.
+     *
+     * @param moodle_url $baseurl The base URL.
+     * @param int $mode The tab mode.
+     */
+    public function teacherview_slot_tabs(moodle_url $baseurl, $mode) {
+        $tabs = [
+            [1, get_string('slottabcurrent', 'mod_scheduler')],
+            [2, get_string('slottabpast', 'mod_scheduler')],
+            [0, get_string('all', 'core')],
+        ];
+
+        $o = '';
+        $o .= html_writer::start_div('my-3');
+        $o .= html_writer::start_tag('ul', ['class' => 'nav nav-pills']);
+        $o .= implode('', array_map(function($tab) use ($mode, $baseurl) {
+            [$value, $label] = $tab;
+            $url = new moodle_url($baseurl);
+            $url->param('tmode', $value);
+            return html_writer::tag('li', html_writer::link($url, $label, [
+                'class' => 'nav-link' . ($mode == $value ? ' active' : '')
+            ]), ['class' => 'nav-item']);
+        }, $tabs));
+        $o .= html_writer::end_tag('ul');
+        $o .= html_writer::end_div();
+        return $o;
+    }
+
+    /**
      * Render a table of slots
      *
      * @param scheduler_slot_table $slottable the table to rended
