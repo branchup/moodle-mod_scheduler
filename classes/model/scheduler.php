@@ -900,6 +900,43 @@ class scheduler extends mvc_record_model {
     }
 
     /**
+     * Get an SQL fragment to validate group membership.
+     *
+     * This fragment is to be used in a WHERE clause, and will match if the
+     * schedule does not require groups, or if the student's groups are matching
+     * that of the scheduler.
+     *
+     * @param int $studentid The student ID.
+     * @return array An array containing the SQL fragment and the parameters.
+     */
+    protected function get_group_membership_required_sql_fragment($studentid) {
+        global $DB;
+
+        $sql = '1 = 1';
+        $params = [];
+
+        if ($this->groupmode != NOGROUPS) {
+            $groups = groups_get_all_groups($this->cm->course, $studentid, $this->cm->groupingid);
+            if ($groups) {
+                $groupids = array();
+                foreach ($groups as $group) {
+                    $groupids[] = $group->id;
+                }
+                list($sqlin, $paramsin) = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
+                $sql = "EXISTS (SELECT 1
+                                  FROM {groups_members} gm
+                                 WHERE gm.userid = s.teacherid
+                                   AND gm.groupid $sqlin)";
+                $params = array_merge($params, $paramsin);
+            } else {
+                $sql = 'FALSE';
+            }
+        }
+
+        return [$sql, $params];
+    }
+
+    /**
      * Retrieves upcoming slots booked by a student. These will be sorted by start time.
      * A slot is "upcoming" if it as been booked but is not attended.
      *
@@ -936,24 +973,8 @@ class scheduler extends mvc_record_model {
         $freespacerequiredsql = '(s.exclusivity = 0 OR s.exclusivity > '. $this->appointment_count_query() . ')';
 
         // Fragments to ensure group membership.
-        $isgroupmembersql = '1 = 1';
-        if ($this->groupmode != NOGROUPS) {
-            $groups = groups_get_all_groups($this->cm->course, $studentid, $this->cm->groupingid);
-            if ($groups) {
-                $groupids = array();
-                foreach ($groups as $group) {
-                    $groupids[] = $group->id;
-                }
-                list($sqlin, $paramsin) = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
-                $isgroupmembersql = "EXISTS (SELECT 1
-                                               FROM {groups_members} gm
-                                              WHERE gm.userid = s.teacherid
-                                                AND gm.groupid $sqlin)";
-                $params = array_merge($params, $paramsin);
-            } else {
-                $isgroupmembersql = 'FALSE';
-            }
-        }
+        [$isgroupmembersql, $ingroupparams] = $this->get_group_membership_required_sql_fragment($studentid);
+        $params = array_merge($params, $ingroupparams);
 
         // Fragment to restrict per start time, and optionally requiring free space in slot.
         $startimesql = implode(' AND ', [
@@ -989,6 +1010,22 @@ class scheduler extends mvc_record_model {
     }
 
     /**
+     * Whether slots have ever been available for a student.
+     *
+     * @param int $studentid Student to look for.
+     * @return boolean
+     */
+    public function has_ever_had_available_slots_for_student($studentid) {
+        $params = [];
+
+        [$isgroupmembersql, $ingroupparams] = $this->get_group_membership_required_sql_fragment($studentid);
+        $params = array_merge($params, $ingroupparams);
+
+        $where = $isgroupmembersql;
+        return $this->count_slots($where, $params) > 0;
+    }
+
+    /**
      * Does htis scheduler have a slot where a certain student is booked?
      *
      * @param int $studentid student to look for
@@ -1002,7 +1039,6 @@ class scheduler extends mvc_record_model {
         $cnt = $this->count_slots($where, $params);
         return $cnt > 0;
     }
-
 
     /**
      * Does this scheduler contain any slots where a certain group has booked?

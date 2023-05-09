@@ -422,6 +422,7 @@ $string['noresults'] = 'No results. ';
 $string['noschedulers'] = 'There are no schedulers';
 $string['noslots'] = 'There are no appointment slots available.';
 $string['noslotsavailable'] = 'No slots are available for booking at this time.';
+$string['noslotsavailableever'] = 'Slots have not yet been made available in this scheduler, please come back later.';
 $string['noslotsopennow'] = 'No slots are open for booking right now.';
 $string['nostudents'] = 'No students scheduled';
 $string['nostudenttobook'] = 'No student to book';
