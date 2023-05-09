@@ -133,6 +133,32 @@ class slots_query_builder {
     }
 
     /**
+     * Filter by current slots.
+     *
+     * @return void
+     */
+    public function filter_current() {
+        [$endtimesql, $endtimeparams] = $this->construct_endtime_sql(time(), self::OPERATOR_AFTER);
+        [$allseensql, $allseenparams] = $this->construct_all_seen_sql();
+        $this->wheres['current'] = implode(' AND ', [$endtimesql, "NOT $allseensql"]);
+        $this->params = array_merge($this->params, $endtimeparams);
+        $this->params = array_merge($this->params, $allseenparams);
+    }
+
+    /**
+     * Filter by ended slots, or everybody seen.
+     *
+     * @return void
+     */
+    public function filter_ended_or_all_seen() {
+        [$endtimesql, $endtimeparams] = $this->construct_endtime_sql(time(), self::OPERATOR_BEFORE);
+        [$allseensql, $allseenparams] = $this->construct_all_seen_sql();
+        $this->wheres['endedorallseen'] = implode(' OR ', [$endtimesql, $allseensql]);
+        $this->params = array_merge($this->params, $endtimeparams);
+        $this->params = array_merge($this->params, $allseenparams);
+    }
+
+    /**
      * Filter by location.
      *
      * @param string $query The string to match.
@@ -189,7 +215,7 @@ class slots_query_builder {
                 $sql = "{$this->prefix}starttime < :filterstarttime";
                 break;
             case self::OPERATOR_BETWEEN:
-                $sql = "{$this->prefix}starttime > :filterstarttime AND {$this->prefix}starttime < :filterstarttimeend";
+                $sql = "({$this->prefix}starttime > :filterstarttime AND {$this->prefix}starttime < :filterstarttimeend)";
                 $params = [
                     'filterstarttime' => $timestamp,
                     'filterstarttimeend' => $timestampend
@@ -269,12 +295,17 @@ class slots_query_builder {
         }
 
         foreach ($this->joins as $join) {
-            $where[] = '(' . $join->wheres . ')';
+            if (!empty($join->wheres)) {
+                $wheres[] = '(' . $join->wheres . ')';
+            }
             $params = array_merge($params, $join->params);
         }
 
-        $where = implode(' AND ', $wheres);
-        return [$where, $params];
+        $sql = '';
+        if (!empty($wheres)) {
+            $sql = '(' . implode(') AND (', $wheres) . ')';
+        }
+        return [$sql, $params];
     }
 
     /**
@@ -323,6 +354,85 @@ class slots_query_builder {
     public function set_limit($limit, $offset = 0) {
         $this->limitnum = max(0, (int) $limit);
         $this->limitfrom = max(0, (int) $offset);
+    }
+
+    /**
+     * Construct everybody seen SQL.
+     *
+     * @return array With SQL and params.
+     */
+    protected function construct_all_seen_sql() {
+        $countseensql = "SELECT COUNT(a.id)
+                           FROM {scheduler_appointment} a
+                          WHERE a.slotid = {$this->prefix}id
+                            AND a.attended = 1";
+        $sql = "({$this->prefix}exclusivity > 0 AND {$this->prefix}exclusivity <= ({$countseensql}))";
+        return [$sql, []];
+    }
+
+    /**
+     * Construct endtime SQL.
+     *
+     * @param string $timestamp The timestamp.
+     * @param int $operator The operator constant.
+     * @param int $timestampend The second timestamp when OPERATOR_BETWEEN.
+     * @return array With SQL and params.
+     */
+    protected function construct_endtime_sql($timestamp, $operator = self::OPERATOR_ON, $timestampend = 0) {
+        $field = "{$this->prefix}starttime + {$this->prefix}duration * 60";
+        return $this->construct_time_sql($field, $timestamp, $operator, $timestampend);
+    }
+
+    /**
+     * Construct time SQL.
+     *
+     * @param string $timestamp The timestamp.
+     * @param int $operator The operator constant.
+     * @param int $timestampend The second timestamp when OPERATOR_BETWEEN.
+     * @return array With SQL and params.
+     */
+    protected function construct_time_sql($field, $timestamp, $operator = self::OPERATOR_ON, $timestampend = 0) {
+        static $i = 0;
+
+        $timestamp = (int) $timestamp;
+        $timestampend = (int) $timestampend;
+
+        $i++;
+        $paramstart = "paramtime{$i}";
+        $paramend = "paramtimeend{$i}";
+
+        $sql = '1=1';
+        $params = [$paramstart => $timestamp];
+
+        // Convert the operator ON to BETWEEN.
+        if ($operator === self::OPERATOR_ON) {
+            $operator = self::OPERATOR_BETWEEN;
+            $timestamp = usergetmidnight($timestamp);
+            $timestampend = $timestamp + DAYSECS;
+        }
+
+        switch ($operator) {
+            case self::OPERATOR_AT:
+                $sql = "$field = :$paramstart";
+                break;
+            case self::OPERATOR_AFTER:
+                $sql = "$field > :$paramstart";
+                break;
+            case self::OPERATOR_BEFORE:
+                $sql = "$field < :$paramstart";
+                break;
+            case self::OPERATOR_BETWEEN:
+                $sql = "($field > :$paramstart AND $field < :$paramend)";
+                $params = [
+                    $paramstart => $timestamp,
+                    $paramend => $timestampend
+                ];
+                break;
+            default:
+                throw new coding_exception('Unexpected operator');
+        }
+
+        return [$sql, $params];
     }
 
 }
