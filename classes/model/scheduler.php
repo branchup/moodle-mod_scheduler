@@ -926,28 +926,17 @@ class scheduler extends mvc_record_model {
      * @return slot[]
      */
     public function get_slots_available_to_student($studentid, $includefullybooked = false) {
-
         global $DB;
+        $params = [];
 
-        $params = array();
+        // Fragment to skip slots that are already booked by the student.
+        $notbookedbystudentsql = 'NOT (' . $this->student_in_slot_condition($params, $studentid, false, false) . ')';
 
-        $whereconds = [];
+        // Fragments to skips that do not have free spaces.
+        $freespacerequiredsql = '(s.exclusivity = 0 OR s.exclusivity > '. $this->appointment_count_query() . ')';
 
-        if ($this->is_accepting_late_bookings()) {
-            $whereconds[] = 's.starttime + s.duration * 60 > :maxendtime';
-            $params['maxendtime'] = time();
-        } else {
-            $whereconds[] = 's.starttime > :cutofftime';
-            $params['cutofftime'] = time() + $this->guardtime;
-        }
-
-        $whereconds[] = "s.hideuntil < :nowhide";
-        $params['nowhide'] = time();
-
-        $subcond = 'NOT ('.$this->student_in_slot_condition($params, $studentid, false, false).')';
-        if (!$includefullybooked) {
-            $subcond .= ' AND (s.exclusivity = 0 OR s.exclusivity > '.$this->appointment_count_query().')';
-        }
+        // Fragments to ensure group membership.
+        $isgroupmembersql = '1 = 1';
         if ($this->groupmode != NOGROUPS) {
             $groups = groups_get_all_groups($this->cm->course, $studentid, $this->cm->groupingid);
             if ($groups) {
@@ -956,14 +945,41 @@ class scheduler extends mvc_record_model {
                     $groupids[] = $group->id;
                 }
                 list($sqlin, $paramsin) = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
-                $subquery = "SELECT 1 FROM {groups_members} gm WHERE gm.userid = s.teacherid AND gm.groupid $sqlin";
-                $subcond .= " AND EXISTS ($subquery)";
+                $isgroupmembersql = "EXISTS (SELECT 1
+                                               FROM {groups_members} gm
+                                              WHERE gm.userid = s.teacherid
+                                                AND gm.groupid $sqlin)";
                 $params = array_merge($params, $paramsin);
             } else {
-                $subcond .= " AND FALSE";
+                $isgroupmembersql = 'FALSE';
             }
         }
-        $whereconds[] = "($subcond)";
+
+        // Fragment to restrict per start time, and optionally requiring free space in slot.
+        $startimesql = implode(' AND ', [
+            's.starttime > :cutofftime',
+            $includefullybooked ? '1 = 1' : $freespacerequiredsql
+        ]);
+        $params['cutofftime'] = time() + $this->guardtime;
+
+        // Fragment to allow for for late submissions, but then there must be free space in slot.
+        $endtimesql = '1 = 2';
+        if ($this->is_accepting_late_bookings()) {
+            $endtimesql = implode(' AND ', [
+                's.starttime + s.duration * 60 > :maxendtime',
+                $freespacerequiredsql
+            ]);
+            $params['maxendtime'] = time();
+        }
+
+        // Combining everything together.
+        $whereconds = [
+            's.hideuntil < :nowhide',
+            $notbookedbystudentsql,
+            $isgroupmembersql,
+            "(($startimesql) OR ($endtimesql))"
+        ];
+        $params['nowhide'] = time();
         $wheresql = implode(' AND ', $whereconds);
 
         $order = 's.starttime ASC, s.duration ASC, s.teacherid';
