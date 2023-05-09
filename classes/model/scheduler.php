@@ -279,6 +279,19 @@ class scheduler extends mvc_record_model {
     }
 
     /**
+     * Whether we accept late bookings.
+     *
+     * Note that the 'acceptlatebookings' property is set to -1 for "yes", so that
+     * in the future the property could be reused with a positive integer to determine
+     * how close to the end time late bookings would be allowed.
+     *
+     * @return bool
+     */
+    public function is_accepting_late_bookings() {
+        return !$this->data->guardtime && $this->data->acceptlatebookings == -1;
+    }
+
+    /**
      * Retrieve whether group scheduling is enabled in this instance
      *
      * @return boolean
@@ -917,9 +930,20 @@ class scheduler extends mvc_record_model {
         global $DB;
 
         $params = array();
-        $wherecond = "(s.starttime > :cutofftime) AND (s.hideuntil < :nowhide)";
+
+        $whereconds = [];
+
+        if ($this->is_accepting_late_bookings()) {
+            $whereconds[] = 's.starttime + s.duration * 60 > :maxendtime';
+            $params['maxendtime'] = time();
+        } else {
+            $whereconds[] = 's.starttime > :cutofftime';
+            $params['cutofftime'] = time() + $this->guardtime;
+        }
+
+        $whereconds[] = "s.hideuntil < :nowhide";
         $params['nowhide'] = time();
-        $params['cutofftime'] = time() + $this->guardtime;
+
         $subcond = 'NOT ('.$this->student_in_slot_condition($params, $studentid, false, false).')';
         if (!$includefullybooked) {
             $subcond .= ' AND (s.exclusivity = 0 OR s.exclusivity > '.$this->appointment_count_query().')';
@@ -939,9 +963,11 @@ class scheduler extends mvc_record_model {
                 $subcond .= " AND FALSE";
             }
         }
-        $wherecond .= " AND ($subcond)";
+        $whereconds[] = "($subcond)";
+        $wheresql = implode(' AND ', $whereconds);
+
         $order = 's.starttime ASC, s.duration ASC, s.teacherid';
-        $slots = $this->fetch_slots($wherecond, '', $params, '', '', $order);
+        $slots = $this->fetch_slots($wheresql, '', $params, '', '', $order);
 
         return $slots;
     }

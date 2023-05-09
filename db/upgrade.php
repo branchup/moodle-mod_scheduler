@@ -434,6 +434,21 @@ function xmldb_scheduler_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2023052405, 'scheduler');
     }
 
+    if ($oldversion < 2023052418) {
+
+        // Define field acceptlatebookings to be added to scheduler.
+        $table = new xmldb_table('scheduler');
+        $field = new xmldb_field('acceptlatebookings', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'canwatch');
+
+        // Conditionally launch add field acceptlatebookings.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Scheduler savepoint reached.
+        upgrade_mod_savepoint(true, 2023052418, 'scheduler');
+    }
+
     return true;
 
 }
