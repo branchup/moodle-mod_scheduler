@@ -109,8 +109,8 @@
                                     core-site-plugins-call-ws
                                     name="mod_scheduler_cancel_booking"
                                     [params]="{cmid: <% cmid %>, slotid: <% slot.id %>}"
-                                    [preSets]="{getFromCache: 0, saveToCache: 0}"
-                                    refreshOnSuccess="true">
+                                    [preSets]="{getFromCache: 0, saveToCache: 0, typeExpected: 'boolean'}"
+                                    goBackOnSuccess="true">
                                 <%# str %>cancelbooking, mod_scheduler<%/ str %>
                             </ion-button>
                         <%/ scheduler.isgroupbookingenabled %>
