@@ -771,7 +771,7 @@ class external extends external_api {
             'filepath' => $file->get_filepath(),
             'filename' => $file->get_filename(),
             'url' => moodle_url::make_webservice_pluginfile_url( $file->get_contextid(), $file->get_component(),
-                $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename()),
+                $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename())->out(false),
             'timemodified' => $file->get_timemodified(),
             'timecreated' => $file->get_timecreated(),
             'filesize' => $file->get_filesize(),
