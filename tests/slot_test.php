@@ -297,6 +297,9 @@ class slot_test extends \advanced_testcase {
 
     /**
      * Test bookable period without guard time.
+     *
+     * @covers \mod_scheduler\model\slot::is_in_bookable_period
+     * @covers \mod_scheduler\model\slot::is_in_bookable_period_before_guard
      */
     public function test_is_in_bookable_period_without_guardtime() {
         $dg = $this->getDataGenerator();
@@ -322,6 +325,9 @@ class slot_test extends \advanced_testcase {
 
     /**
      * Test bookable period with guard time.
+     *
+     * @covers \mod_scheduler\model\slot::is_in_bookable_period
+     * @covers \mod_scheduler\model\slot::is_in_bookable_period_before_guard
      */
     public function test_is_in_bookable_period_with_guardtime() {
         $dg = $this->getDataGenerator();
@@ -349,6 +355,9 @@ class slot_test extends \advanced_testcase {
 
     /**
      * Test bookable period with late bookings.
+     *
+     * @covers \mod_scheduler\model\slot::is_in_bookable_period
+     * @covers \mod_scheduler\model\slot::is_in_bookable_period_before_guard
      */
     public function test_is_in_bookable_period_with_late_bookings() {
         $dg = $this->getDataGenerator();

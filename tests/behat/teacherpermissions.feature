@@ -40,6 +40,7 @@ Feature: Teachers can edit other teacher's appointments only by permission
     When I am on the "scheduler1" Activity page logged in as "edteacher1"
     And I follow "Statistics"
     And I follow "All appointments"
+    And I follow "All"
     Then I should see "Student 1" in the "3:00 AM" "table_row"
     And "seen[]" "checkbox" should exist in the "3:00 AM" "table_row"
     And I should see "Student 2" in the "4:00 AM" "table_row"
@@ -60,6 +61,7 @@ Feature: Teachers can edit other teacher's appointments only by permission
     When I am on the "scheduler1" Activity page logged in as "neteacher1"
     And I follow "Statistics"
     And I follow "All appointments"
+    And I follow "All"
     Then I should see "Student 1" in the "3:00 AM" "table_row"
     And "seen[]" "checkbox" should not exist in the "3:00 AM" "table_row"
     And I should see "Student 2" in the "4:00 AM" "table_row"
@@ -78,6 +80,7 @@ Feature: Teachers can edit other teacher's appointments only by permission
     When I am on the "scheduler1" Activity page
     And I follow "Statistics"
     And I follow "All appointments"
+    And I follow "All"
     And I click on "Student 3" "text" in the "5:00 AM" "table_row"
     Then the "Attended" "checkbox" should be disabled
     And "Notes for appointment (visible to student)" "field" should not exist
@@ -95,6 +98,7 @@ Feature: Teachers can edit other teacher's appointments only by permission
     When I am on the "scheduler1" Activity page logged in as "neteacher1"
     And I follow "Statistics"
     And I follow "All appointments"
+    And I follow "All"
     Then I should see "Student 1" in the "3:00 AM" "table_row"
     And "seen[]" "checkbox" should exist in the "3:00 AM" "table_row"
     And I should see "Student 2" in the "4:00 AM" "table_row"
@@ -111,6 +115,7 @@ Feature: Teachers can edit other teacher's appointments only by permission
     When I am on the "scheduler1" Activity page
     And I follow "Statistics"
     And I follow "All appointments"
+    And I follow "All"
     When I click on "Student 3" "text" in the "5:00 AM" "table_row"
     Then the "Attended" "checkbox" should be enabled
     And "Notes for appointment (visible to student)" "field" should not exist
@@ -132,6 +137,7 @@ Feature: Teachers can edit other teacher's appointments only by permission
     When I am on the "scheduler1" Activity page logged in as "neteacher1"
     And I follow "Statistics"
     And I follow "All appointments"
+    And I follow "All"
     Then I should see "Student 1" in the "3:00 AM" "table_row"
     And "seen[]" "checkbox" should not exist in the "3:00 AM" "table_row"
     And I should see "Student 2" in the "4:00 AM" "table_row"
@@ -148,6 +154,7 @@ Feature: Teachers can edit other teacher's appointments only by permission
     When I am on the "scheduler1" Activity page
     And I follow "Statistics"
     And I follow "All appointments"
+    And I follow "All"
     And I click on "Student 3" "text" in the "5:00 AM" "table_row"
     Then the "grade" "field" should be enabled
     And the "Attended" "checkbox" should be disabled
@@ -170,6 +177,7 @@ Feature: Teachers can edit other teacher's appointments only by permission
     When I am on the "scheduler1" Activity page logged in as "neteacher1"
     And I follow "Statistics"
     And I follow "All appointments"
+    And I follow "All"
     Then I should see "Student 1" in the "3:00 AM" "table_row"
     And "seen[]" "checkbox" should not exist in the "3:00 AM" "table_row"
     And I should see "Student 2" in the "4:00 AM" "table_row"
@@ -189,6 +197,7 @@ Feature: Teachers can edit other teacher's appointments only by permission
     When I am on the "scheduler1" Activity page
     And I follow "Statistics"
     And I follow "All appointments"
+    And I follow "All"
     And I click on "Student 3" "text" in the "5:00 AM" "table_row"
     Then "grade" "field" should not exist
     And the "Attended" "checkbox" should be disabled

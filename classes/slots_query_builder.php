@@ -386,6 +386,7 @@ class slots_query_builder {
     /**
      * Construct time SQL.
      *
+     * @param string $field The field.
      * @param string $timestamp The timestamp.
      * @param int $operator The operator constant.
      * @param int $timestampend The second timestamp when OPERATOR_BETWEEN.
