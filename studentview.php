@@ -45,6 +45,7 @@ require_capability('mod/scheduler:viewslots', $context);
 $canbook = has_capability('mod/scheduler:appoint', $context);
 $canseefull = has_capability('mod/scheduler:viewfullslots', $context);
 $canwatch = has_capability('mod/scheduler:watchslots', $context);
+$canseeothers = has_capability('mod/scheduler:seeotherstudentsbooking', $context);
 
 if ($scheduler->is_group_scheduling_enabled()) {
     $mygroupsforscheduling = groups_get_all_groups($scheduler->courseid, $USER->id, $scheduler->bookingrouping, 'g.id, g.name');
@@ -138,7 +139,7 @@ if (count($upcomingslots) > 0) {
     foreach ($upcomingslots as $slot) {
         $appointment = $slot->get_student_appointment($USER->id);
 
-        if ($slot->is_groupslot() && has_capability('mod/scheduler:seeotherstudentsbooking', $context)) {
+        if ($slot->is_groupslot() && $canseeothers) {
             $showothergrades = has_capability('mod/scheduler:seeotherstudentsresults', $context);
             $others = new scheduler_student_list($scheduler);
             foreach ($slot->get_appointments() as $otherapp) {
@@ -197,17 +198,6 @@ if (!$canseefull && $bookablecnt == 0) {
         $slot = $bookableslots[$idx];
         $canbookthisslot = $canbookslots;
 
-        if (has_capability('mod/scheduler:seeotherstudentsbooking', $context)) {
-            $others = new scheduler_student_list($scheduler, false);
-            foreach ($slot->get_appointments() as $otherapp) {
-                $others->add_student($otherapp, $otherapp->studentid == $USER->id);
-            }
-            $others->expandable = true;
-            $others->expanded = false;
-        } else {
-            $others = null;
-        }
-
         // Check what to print as group information...
         $remaining = $slot->count_remaining_appointments();
         if ($slot->exclusivity == 0) {
@@ -221,6 +211,25 @@ if (!$canseefull && $bookablecnt == 0) {
                 $groupinfo = get_string('full', 'scheduler');
                 $canbookthisslot = false;
             }
+        }
+
+        // Display the list of others when allowed, and booking is possible, or the user has
+        // access to the list of full slots. This ensures that we are not disclosing the list
+        // students to the potential watchers. The introduction of the watch list has allowed
+        // students to view the full slots, and their participants, but the original behaviour
+        // was to hide full slots unless specifically allowed to view them. In the future, we
+        // may want to add an additional permission to determine whether to show others when
+        // displaying full slots for the purpose of watchers.
+        $canseeothersinslot = $canseeothers && ($canbookthisslot || $canseefull);
+        if ($canseeothersinslot) {
+            $others = new scheduler_student_list($scheduler, false);
+            foreach ($slot->get_appointments() as $otherapp) {
+                $others->add_student($otherapp, $otherapp->studentid == $USER->id);
+            }
+            $others->expandable = true;
+            $others->expanded = false;
+        } else {
+            $others = null;
         }
 
         $isslotwatchable = $slot->is_watchable_by_student($USER->id);
