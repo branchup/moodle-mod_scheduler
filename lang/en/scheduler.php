@@ -114,6 +114,12 @@ This option can only work by displaying full slots to students, it will therefor
 $string['areaappointmentnote'] = 'Files in appointment notes';
 $string['areaslotnote'] = 'Files in slot notes';
 $string['areateachernote'] = 'Files in confidential notes';
+$string['acceptlatebookings'] = 'Accept late bookings';
+$string['acceptlatebookings_help'] = 'When enabled, students will be allowed to book a slot up until its "end" time.
+
+For instance, if a slot is scheduled from 2:00pm to 3:00pm, bookings will be allowed up until 2:59pm.
+
+This setting cannot be used conjointly with "guard time".';
 $string['action'] = 'Action';
 $string['actions'] = 'Actions';
 $string['addappointment'] = 'Add another student';

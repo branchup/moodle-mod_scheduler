@@ -203,13 +203,31 @@ class slot extends mvc_child_record_model {
     }
 
     /**
-     * Is this slot bookable in its bookable period for students.
-     * This checks for the availability time of the slot and for the "guard time" restriction,
-     * but not for the number of actualy booked appointments.
+     * Is this slot bookable in its bookable period for students?
+     *
+     * This checks for the availability time of the slot, the "guard time" restriction,
+     * and whether late bookings are allowed, but not for the number of actualy booked appointments.
      *
      * @return boolean
      */
     public function is_in_bookable_period() {
+        $available = $this->hideuntil <= time();
+        if ($this->get_scheduler()->is_accepting_late_bookings()) {
+            $isbeforecutoff = $this->endtime > time();
+        } else {
+            $isbeforecutoff = $this->starttime > time() + $this->parent->guardtime;
+        }
+        return $available && $isbeforecutoff;
+    }
+
+    /**
+     * Are we in the bookable period before the slot's guard time?
+     *
+     * This is useful to disregard the ability for students to book a slot late.
+     *
+     * @return boolean
+     */
+    public function is_in_bookable_period_before_guard() {
         $available = $this->hideuntil <= time();
         $beforeguardtime = $this->starttime > time() + $this->parent->guardtime;
         return $available && $beforeguardtime;
@@ -305,7 +323,7 @@ class slot extends mvc_child_record_model {
      * @return bool
      */
     public function is_watchable() {
-        return $this->scheduler->is_watching_enabled() && $this->is_in_bookable_period();
+        return $this->scheduler->is_watching_enabled() && $this->is_in_bookable_period_before_guard();
     }
 
     /**
