@@ -239,7 +239,6 @@ if ($action == 'cancelbooking') {
     try {
         mod_scheduler_cancel_slot($scheduler, $slotid, $USER->id, $appointgroup);
     } catch (moodle_exception $e) {
-        throw $e;
         \core\notification::error($e->getMessage());
     }
 

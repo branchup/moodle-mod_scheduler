@@ -44,9 +44,9 @@ Feature: Student-supplied data
     Then I should see "Please enter your first name"
 
     When I click on "Confirm booking" "button"
-    Then I should see "You must enter text into this field"
+    Then I should see "You must provide a message to book the slot"
 
-    When I set the field "Your message" to "Joe"
+    When I set the field "Your message" to "Joe Mama"
     And I click on "Confirm booking" "button"
     Then "Cancel booking" "button" should exist
     And I log out
@@ -55,7 +55,7 @@ Feature: Student-supplied data
     And I click on "Book slot" "button" in the "4:00 AM" "table_row"
     Then I should see "Please enter your first name"
 
-    When I set the field "Your message" to "Jill"
+    When I set the field "Your message" to "Jill Jackson"
     And I upload "mod/scheduler/tests/fixtures/studentfile.txt" file to "Upload files" filemanager
     And I click on "Confirm booking" "button"
     Then "Cancel booking" "button" should exist
@@ -69,12 +69,12 @@ Feature: Student-supplied data
 
     When I click on "Student 1" "text" in the "3:00 AM" "table_row"
     Then I should see "Student 1"
-    And I should see "Joe"
+    And I should see "Joe Mama"
     And I should not see "studentfile.txt"
 
     When I click on "Continue" "button"
     And I click on "Student 2" "text" in the "4:00 AM" "table_row"
     Then I should see "Student 2"
-    And I should see "Jill"
+    And I should see "Jill Jackson"
     And I should see "studentfile.txt"
     And I log out
