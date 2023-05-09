@@ -107,6 +107,13 @@ class mod_scheduler_mod_form extends moodleform_mod {
         $mform->addElement('duration', 'guardtime', get_string('guardtime', 'scheduler'), array('optional' => true));
         $mform->addHelpButton('guardtime', 'guardtime', 'scheduler');
 
+        $mform->addElement('select', 'acceptlatebookings', get_string('acceptlatebookings', 'scheduler'), [
+            0 => get_string('no', 'core'),
+            -1 => get_string('yes', 'core'),
+        ]);
+        $mform->addHelpButton('acceptlatebookings', 'acceptlatebookings', 'scheduler');
+        $mform->disabledIf('acceptlatebookings', 'guardtime[enabled]', 'eq', '1');
+
         $mform->addElement('text', 'defaultslotduration', get_string('defaultslotduration', 'scheduler'), array('size' => '2'));
         $mform->setType('defaultslotduration', PARAM_INT);
         $mform->addHelpButton('defaultslotduration', 'defaultslotduration', 'scheduler');
@@ -262,6 +269,10 @@ class mod_scheduler_mod_form extends moodleform_mod {
         // Force watching to be disabled when it would not be working.
         if (!get_config('mod_scheduler', 'mixindivgroup') && !empty($data->groupbookings)) {
             $data->canwatch = 0;
+        }
+        // Ensure late bookings are disallowed when guard time is used.
+        if (!empty($data->guardtime)) {
+            $data->acceptlatebookings = 0;
         }
     }
 

@@ -296,6 +296,85 @@ class slot_test extends \advanced_testcase {
     }
 
     /**
+     * Test bookable period without guard time.
+     */
+    public function test_is_in_bookable_period_without_guardtime() {
+        $dg = $this->getDataGenerator();
+
+        $now = time();
+        $times = [
+            $now - HOURSECS => false,
+            $now + MINSECS => true,
+            $now + HOURSECS => true,
+        ];
+        $mod = $dg->create_module('scheduler', ['course' => $this->courseid, 'guardtime' => 0], [
+            'slottimes' => array_keys($times)]);
+
+        $scheduler = scheduler::load_by_id($mod->id);
+        $slots = array_values($scheduler->get_all_slots());
+        $times = array_values($times);
+        foreach ($slots as $key => $slot) {
+            $expected = $times[$key];
+            $this->assertEquals($expected, $slot->is_in_bookable_period());
+            $this->assertEquals($expected, $slot->is_in_bookable_period_before_guard());
+        }
+    }
+
+    /**
+     * Test bookable period with guard time.
+     */
+    public function test_is_in_bookable_period_with_guardtime() {
+        $dg = $this->getDataGenerator();
+
+        $now = time();
+        $times = [
+            $now - HOURSECS => false,
+            $now + MINSECS => false,
+            $now + MINSECS * 14 => false,
+            $now + MINSECS * 16 => true,
+            $now + HOURSECS => true
+        ];
+        $mod = $dg->create_module('scheduler', ['course' => $this->courseid, 'guardtime' => MINSECS * 15], [
+            'slottimes' => array_keys($times)]);
+
+        $scheduler = scheduler::load_by_id($mod->id);
+        $slots = array_values($scheduler->get_all_slots());
+        $times = array_values($times);
+        foreach ($slots as $key => $slot) {
+            $expected = $times[$key];
+            $this->assertEquals($expected, $slot->is_in_bookable_period());
+            $this->assertEquals($expected, $slot->is_in_bookable_period_before_guard());
+        }
+    }
+
+    /**
+     * Test bookable period with late bookings.
+     */
+    public function test_is_in_bookable_period_with_late_bookings() {
+        $dg = $this->getDataGenerator();
+
+        $now = time();
+        $times = [
+            $now - HOURSECS => [false, false],
+            $now - MINSECS * 15 => [false, false],
+            $now - MINSECS * 9 => [true, false],
+            $now + MINSECS => [true, true],
+            $now + HOURSECS => [true, true]
+        ];
+        $mod = $dg->create_module('scheduler', ['course' => $this->courseid, 'acceptlatebookings' => -1], [
+            'slottimes' => array_keys($times)]);
+
+        $scheduler = scheduler::load_by_id($mod->id);
+        $slots = array_values($scheduler->get_all_slots());
+        $times = array_values($times);
+        foreach ($slots as $key => $slot) {
+            [$expected1, $expected2] = $times[$key];
+            $this->assertEquals($expected1, $slot->is_in_bookable_period());
+            $this->assertEquals($expected2, $slot->is_in_bookable_period_before_guard());
+        }
+    }
+
+    /**
      * Assert that a calendar event exists in the DB.
      *
      * @param int $userid user associated with event
