@@ -177,8 +177,12 @@ if (!$canseefull && $bookablecnt == 0) {
 } else if (count($bookableslots) == 0) {
 
     // No slots are available at this time.
-    $noslots = get_string('noslotsavailable', 'scheduler');
-    echo html_writer::div($noslots, 'studentbookingmessage');
+    $message = get_string('noslotsavailable', 'scheduler');
+    if (!$scheduler->has_ever_had_available_slots_for_student($USER->id)) {
+        $message = get_string('noslotsavailableever', 'scheduler');
+    }
+
+    echo html_writer::div($message, 'studentbookingmessage');
 
 } else {
     // The student can book (or see) further appointments, and slots are available.
