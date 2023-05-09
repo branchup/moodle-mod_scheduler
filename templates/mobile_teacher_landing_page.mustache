@@ -2,7 +2,7 @@
 
 <core-course-module-description description="<% scheduler.intro %>" component="mod_scheduler" componentId="<% cmid %>"></core-course-module-description>
 
-<div padding>
+<div class="ion-padding">
 
     <%^ hasslots %>
         <p><%# str %>noappointmentsyet, mod_scheduler<%/ str %></p>
@@ -23,27 +23,31 @@
             <%/ hasslots %>
             <%# hasslots %>
                 <%# slots %>
-                    <button ion-item core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
-                        <h2><% timeformatted.date %></h2>
-                        <p><% timeformatted.starttime %> - <% timeformatted.endtime %></p>
+                    <ion-item button core-site-plugins-new-content method="slot" [args]="{cmid: <% cmid%>, id: <% id %>}">
+                        <ion-label>
+                            <h2><% timeformatted.date %></h2>
+                            <p><% timeformatted.starttime %> - <% timeformatted.endtime %></p>
+                        </ion-label>
                         <%# isunlimited %>
-                            <ion-note item-end><% ntaken %></ion-note>
+                            <ion-note slot="end"><% ntaken %></ion-note>
                         <%/ isunlimited %>
                         <%^ isunlimited %>
                             <%^ isfull %>
-                                <ion-note item-end><% ntaken %> / <% maxappointments %></ion-note>
+                                <ion-note slot="end"><% ntaken %> / <% maxappointments %></ion-note>
                             <%/ isfull %>
                             <%# isfull %>
-                                <ion-note item-end><%# str %>complete, mod_scheduler<%/ str %></ion-note>
+                                <ion-note slot="end"><%# str %>complete, mod_scheduler<%/ str %></ion-note>
                             <%/ isfull %>
                         <%/ isunlimited %>
-                    </button>
+                    </ion-item>
                 <%/ slots %>
                 <%# hasmore %>
                     <ion-item>
-                        <button ion-button clear block core-site-plugins-new-content method="teacher_slots" [args]="{cmid: <% cmid %>, page: 0}" title="<%# str %>myappointments, mod_scheduler<%/ str %>">
-                            <%# str %>viewmore, core<%/ str %>
-                        </button>
+                        <ion-label>
+                            <ion-button fill="clear" expand="block" core-site-plugins-new-content method="teacher_slots" [args]="{cmid: <% cmid %>, page: 0}" title="<%# str %>myappointments, mod_scheduler<%/ str %>">
+                                <%# str %>viewmore, core<%/ str %>
+                            </ion-button>
+                        </ion-label>
                     </ion-item>
                 <%/ hasmore %>
             <%/ hasslots %>

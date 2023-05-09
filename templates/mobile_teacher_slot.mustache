@@ -3,47 +3,59 @@
 <div>
     <ion-list>
         <ion-item>
-            <h2><% slot.timeformatted.date %></h2>
-            <p><% slot.timeformatted.starttime %> - <% slot.timeformatted.endtime %></p>
+            <ion-label>
+                <h2><% slot.timeformatted.date %></h2>
+                <p><% slot.timeformatted.starttime %> - <% slot.timeformatted.endtime %></p>
+            </ion-label>
         </ion-item>
 
         <ion-item>
-            <h2><% scheduler.teachername %></h2>
-            <p><% slot.teacher.fullname %></p>
+            <ion-label>
+                <h2><% scheduler.teachername %></h2>
+                <p><% slot.teacher.fullname %></p>
+            </ion-label>
         </ion-item>
 
         <%# slot.hasappointmentlocation %>
         <ion-item>
-            <h2><%# str %>location, mod_scheduler<%/ str %></h2>
-            <p><% slot.appointmentlocation %></p>
+            <ion-label>
+                <h2><%# str %>location, mod_scheduler<%/ str %></h2>
+                <p><% slot.appointmentlocation %></p>
+            </ion-label>
         </ion-item>
         <%/ slot.hasappointmentlocation %>
 
         <%# slot.hasnotes %>
-            <ion-item text-wrap>
-                <h2><%# str %>comments, mod_scheduler<%/ str %></h2>
-                <core-format-text text="<% slot.notesformatted %>" component="mod_scheduler" componentId="<% cmid %>"></core-format-text>
+            <ion-item class="ion-text-wrap">
+                <ion-label>
+                    <h2><%# str %>comments, mod_scheduler<%/ str %></h2>
+                    <core-format-text text="<% slot.notesformatted %>" component="mod_scheduler" componentId="<% cmid %>"></core-format-text>
+                </ion-label>
             </ion-item>
         <%/ slot.hasnotes %>
 
         <%# slot.hasappointments %>
-            <ion-list-header no-margin>
-                <%# str %>students, mod_scheduler<%/ str %>
+            <ion-list-header>
+                <ion-label>
+                    <%# str %>students, mod_scheduler<%/ str %>
+                </ion-label>
             </ion-list-header>
 
             <%# slot.appointments %>
-                <a ion-item core-site-plugins-new-content method="appointment" [args]="{cmid: <% cmid %>, id: <% id %>}" title="<% student.fullname %>" [preSets]="{getFromCache: 0, saveToCache: 0}">
-                    <ion-avatar core-user-avatar profileUrl="<% student.profileimageurl %>" item-start></ion-avatar>
-                    <h2>
-                        <% student.fullname %>
-                        <%# hasstudentdata %><%# pix %>attachment, mod_scheduler<%/ pix %><%/ hasstudentdata %>
-                    </h2>
+                <ion-item button core-site-plugins-new-content method="appointment" [args]="{cmid: <% cmid %>, id: <% id %>}" title="<% student.fullname %>" [preSets]="{getFromCache: 0, saveToCache: 0}">
+                    <core-user-avatar profileUrl="<% student.profileimageurl %>" slot="start"></core-user-avatar>
+                    <ion-label>
+                        <h2>
+                            <% student.fullname %>
+                            <%# hasstudentdata %><%# pix %>attachment, mod_scheduler<%/ pix %><%/ hasstudentdata %>
+                        </h2>
+                    </ion-label>
                     <%# isattended %>
-                    <ion-note item-end>
+                    <ion-note slot="end">
                         <ion-icon name="checkmark"></ion-icon>
                     </ion-note>
                     <%/ isattended %>
-            </a>
+                </ion-item>
             <%/ slot.appointments %>
         <%/ slot.hasappointments %>
 
