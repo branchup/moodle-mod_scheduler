@@ -537,8 +537,8 @@ $sqlcount = $scheduler->count_slots_from_query_builder($qb);
 
 $pagesize = 25;
 if ($offset == -1) {
-    // When the user lands on the page, navigate to the most relevant page first.
-    if ($sqlcount > $pagesize) {
+    // When the user lands on the "all" page, navigate to the most relevant page first.
+    if ($sqlcount > $pagesize && $tmode === 0) {
         $qbpast = $qb->clone();
         $qbpast->set_timerange(mod_scheduler\slots_query_builder::TIMERANGE_PAST);
         $offsetcount = $scheduler->count_slots_from_query_builder($qbpast);

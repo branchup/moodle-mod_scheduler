@@ -411,6 +411,7 @@ class mod_scheduler_renderer extends plugin_renderer_base {
             [$value, $label] = $tab;
             $url = new moodle_url($baseurl);
             $url->param('tmode', $value);
+            $url->remove_params(['offset']); // Reset pagination.
             return html_writer::tag('li', html_writer::link($url, $label, [
                 'class' => 'nav-link' . ($mode == $value ? ' active' : '')
             ]), ['class' => 'nav-item']);
