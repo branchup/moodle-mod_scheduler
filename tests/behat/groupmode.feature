@@ -289,10 +289,10 @@ Feature: Users can only see their own groups if the scheduler is in group mode
     And I should see "Nonedteacher 1"
 
     When I am on the "schedulerVis" Activity page
-    Then I should see "Slots have not yet been made available"
+    Then I should see "No slots are due to become available"
 
     When I am on the "schedulerSep" Activity page
-    Then I should see "Slots have not yet been made available"
+    Then I should see "No slots are due to become available"
     And I log out
 
     When I log in as "student6"
@@ -302,10 +302,10 @@ Feature: Users can only see their own groups if the scheduler is in group mode
     And I should see "Nonedteacher 1"
 
     When I am on the "schedulerVis" Activity page
-    Then I should see "Slots have not yet been made available"
+    Then I should see "No slots are due to become available"
 
     When I am on the "schedulerSep" Activity page
-    Then I should see "Slots have not yet been made available"
+    Then I should see "No slots are due to become available"
     And I log out
 
   Scenario: Students can see slots available to their own groups in forced group mode

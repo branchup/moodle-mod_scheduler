@@ -175,11 +175,31 @@ if (!$canseefull && $bookablecnt == 0) {
     echo html_writer::div(get_string('canbooknofurtherappointments', 'scheduler'), 'studentbookingmessage');
 
 } else if (count($bookableslots) == 0) {
+    // If we got here, there are no available slots for the student to book.
 
-    // No slots are available at this time.
-    $message = get_string('noslotsavailable', 'scheduler');
-    if (!$scheduler->has_ever_had_available_slots_for_student($USER->id)) {
-        $message = get_string('noslotsavailableever', 'scheduler');
+    if (!$scheduler->has_current_or_future_slots_for_student($USER->id)) {
+        // All slots are in the past, none current or in future.
+
+        if ($scheduler->has_recent_slots_for_student($USER->id, WEEKSECS * 3)) {
+            // There are slots that were avaialble recently.
+            $message = get_string('noslotsavailableallbooked', 'mod_scheduler');
+        } else {
+            // No slots exist, or none of them were recent enough.
+            $message = get_string('noslotsavailable', 'mod_scheduler');
+        }
+    } else {
+        // There are slots that are current, or in the future.
+
+        $nextunreleased = $scheduler->get_soonest_unreleased_slot_date_for_student($USER->id);
+        if (!$nextunreleased) {
+            // There aren't any slot to become available in the future, all are released.
+            $message = get_string('noslotsavailableallbooked', 'mod_scheduler');
+        } else {
+            // Some slots are due to become available in the future.
+            $message = get_string('noslotsavailableallbookedseedate', 'mod_scheduler',
+                userdate($nextunreleased, get_string('strftimedatemonthabbr', 'core_langconfig')));
+        }
+
     }
 
     echo html_writer::div($message, 'studentbookingmessage');
