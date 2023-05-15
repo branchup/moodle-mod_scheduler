@@ -1010,22 +1010,6 @@ class scheduler extends mvc_record_model {
     }
 
     /**
-     * Whether slots have ever been available for a student.
-     *
-     * @param int $studentid Student to look for.
-     * @return boolean
-     */
-    public function has_ever_had_available_slots_for_student($studentid) {
-        $params = [];
-
-        [$isgroupmembersql, $ingroupparams] = $this->get_group_membership_required_sql_fragment($studentid);
-        $params = array_merge($params, $ingroupparams);
-
-        $where = $isgroupmembersql;
-        return $this->count_slots($where, $params) > 0;
-    }
-
-    /**
      * Does htis scheduler have a slot where a certain student is booked?
      *
      * @param int $studentid student to look for
@@ -1038,6 +1022,83 @@ class scheduler extends mvc_record_model {
         $where = $this->student_in_slot_condition($params, $studentid, $mustbeattended, $mustbeunattended);
         $cnt = $this->count_slots($where, $params);
         return $cnt > 0;
+    }
+
+    /**
+     * Whether there are any current or future slots for student.
+     *
+     * This will return true if there are any slots that are starting in the future
+     * even if they are not yet released (visible) to the student.
+     *
+     * @param int $studentid Student to look for.
+     * @return boolean
+     */
+    public function has_current_or_future_slots_for_student($studentid) {
+        $fragments = [];
+        $params = [];
+
+        // Only select slots that are not yet started.
+        $fragments[] = '(s.starttime > :starttime)';
+        $params['starttime'] = time();
+
+        // Restrict to slots that are available to student.
+        [$isgroupmembersql, $ingroupparams] = $this->get_group_membership_required_sql_fragment($studentid);
+        $params = array_merge($params, $ingroupparams);
+        $fragments[] = $isgroupmembersql;
+
+        $where = implode(' AND ', $fragments);
+        return $this->count_slots($where, $params) > 0;
+    }
+
+    /**
+     * Whether there are recent slots for student.
+     *
+     * A slot is considered recent when it has ended, and is not too far in the past.
+     *
+     * @param int $studentid Student to look for.
+     * @param int $maxage The maximum age of the slot in seconds, relative to now, to be considered recent.
+     * @return boolean
+     */
+    public function has_recent_slots_for_student($studentid, $maxage) {
+        $fragments = [];
+        $params = [];
+
+        // Only select ended slots.
+        $fragments[] = '(s.starttime + s.duration < :endtime)';
+        $params['endtime'] = time();
+
+        // Only select slots that aren't too old.
+        $fragments[] = '(s.starttime > :starttime)';
+        $params['starttime'] = time() - $maxage;
+
+        // Restrict to slots that are available to student.
+        [$isgroupmembersql, $ingroupparams] = $this->get_group_membership_required_sql_fragment($studentid);
+        $params = array_merge($params, $ingroupparams);
+        $fragments[] = $isgroupmembersql;
+
+        $where = implode(' AND ', $fragments);
+        return $this->count_slots($where, $params) > 0;
+    }
+
+    /**
+     * Get the date when the soonest unreleased slot becomes available.
+     *
+     * @param int $studentid Student to look for.
+     * @return int|false
+     */
+    public function get_soonest_unreleased_slot_date_for_student($studentid) {
+        global $DB;
+        [$isgroupmembersql, $ingroupparams] = $this->get_group_membership_required_sql_fragment($studentid);
+        $select = "SELECT MIN(s.hideuntil)
+                     FROM {scheduler_slots} s
+                    WHERE schedulerid = :schedulerid
+                      AND s.hideuntil > :nowhideuntil
+                      AND $isgroupmembersql";
+        $params = [
+            'schedulerid' => $this->data->id,
+            'nowhideuntil' => time()
+        ] + $ingroupparams;
+        return $DB->get_field_sql($select, $params);
     }
 
     /**
