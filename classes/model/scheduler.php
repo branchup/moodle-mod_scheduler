@@ -337,6 +337,18 @@ class scheduler extends mvc_record_model {
     }
 
     /**
+     * The number of characters required in student notes.
+     *
+     * @return int
+     */
+    public function get_studentnotes_minimum_chars() {
+        if (!$this->is_studentnotes_required()) {
+            return 0;
+        }
+        return max((int) get_config('mod_scheduler', 'messageminchars'), 1);
+    }
+
+    /**
      * The maximum number of slots a student can watch at a time.
      *
      * @return int Where 0 means unlimited.

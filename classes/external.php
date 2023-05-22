@@ -198,9 +198,9 @@ class external extends external_api {
         }
         $bookingdata = (object) $bookingdata;
 
-        if ($scheduler->uses_bookingform()) {
+        if ($scheduler->uses_bookingform() && $scheduler->is_studentnotes_required()) {
             $notes = trim(strip_tags($bookingdata->studentnote));
-            if ($scheduler->is_studentnotes_required() && core_text::strlen($notes) < 5) {
+            if (core_text::strlen($notes) < $scheduler->get_studentnotes_minimum_chars()) {
                 throw new moodle_exception('notesrequired', 'mod_scheduler');
             }
         }

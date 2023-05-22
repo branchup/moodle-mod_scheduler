@@ -58,6 +58,13 @@ if ($ADMIN->fulltree) {
                      get_string('maxwatchers_desc', 'mod_scheduler'),
                      5, PARAM_INT));
 
+    $setting = new admin_setting_configtext('mod_scheduler/messageminchars', get_string('messageminchars', 'scheduler'),
+        get_string('messageminchars_desc', 'scheduler'), 1, PARAM_INT);
+    $setting->set_updatedcallback(function() {
+        set_config('messageminchars', max(1, (int) get_config('mod_scheduler', 'messageminchars')), 'mod_scheduler');
+    });
+    $settings->add($setting);
+
     $settings->add(new admin_setting_configtext('mod_scheduler/uploadmaxfiles',
                      get_string('uploadmaxfilesglobal', 'scheduler'),
                      get_string('uploadmaxfilesglobal_desc', 'scheduler'),

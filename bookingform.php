@@ -134,8 +134,8 @@ class scheduler_booking_form extends moodleform {
 
         // Ensure that the student does not avoid entering data by adding a single character.
         if ($scheduler->uses_studentnotes() && $scheduler->is_studentnotes_required()) {
-            $text = trim(strip_tags($data['studentnote'] = $data['studentnote_editor']['text']));
-            if (core_text::strlen($text) < 5) {
+            $text = trim(strip_tags($data['studentnote_editor']['text']));
+            if (core_text::strlen($text) < $scheduler->get_studentnotes_minimum_chars()) {
                 $errors['studentnote_editor'] = get_string('notesrequired', 'scheduler');
             }
         }
