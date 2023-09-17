@@ -461,6 +461,36 @@ function xmldb_scheduler_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2024080104, 'scheduler');
     }
 
+    if ($oldversion < 2024080106) {
+
+        // Define field usecredits to be added to scheduler.
+        $table = new xmldb_table('scheduler');
+        $field = new xmldb_field('usecredits', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'acceptlatebookings');
+
+        // Conditionally launch add field usecredits.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Scheduler savepoint reached.
+        upgrade_mod_savepoint(true, 2024080106, 'scheduler');
+    }
+
+    if ($oldversion < 2024080107) {
+
+        // Define field creditsopid to be added to scheduler_appointment.
+        $table = new xmldb_table('scheduler_appointment');
+        $field = new xmldb_field('creditsopid', XMLDB_TYPE_CHAR, '64', null, null, null, null, 'studentnoteformat');
+
+        // Conditionally launch add field creditsopid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Scheduler savepoint reached.
+        upgrade_mod_savepoint(true, 2024080107, 'scheduler');
+    }
+
     return true;
 
 }

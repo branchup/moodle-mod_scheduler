@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_scheduler\local\credits\slot_booked_reason;
+use mod_scheduler\local\credits\slot_cancelled_reason;
 use \mod_scheduler\model\scheduler;
 
 // Library of functions and constants for module Scheduler.
@@ -827,4 +829,29 @@ function scheduler_get_coursemodule_info($coursemodule) {
     }
 
     return $result;
+}
+
+/**
+ * Create credits reason.
+ *
+ * @param string $code The code.
+ * @param array $args The arguments.
+ */
+function scheduler_block_credits_restore_reason($code, $args) {
+    if ($code === 'slot_booked') {
+        return new slot_booked_reason(
+            $args['schedulerid'],
+            $args['slotid'],
+            $args['appointmentid'],
+            $args['starttime'],
+            $args['duration'] ?? 0
+        );
+    } else if ($code === 'slot_cancelled') {
+        return new slot_cancelled_reason(
+            $args['schedulerid'],
+            $args['starttime'],
+            $args['duration'] ?? 0
+        );
+    }
+    return null;
 }
