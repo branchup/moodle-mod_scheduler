@@ -24,6 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_scheduler\local\credits\credits_facade;
 use \mod_scheduler\model\scheduler;
 use \mod_scheduler\model\slot;
 
@@ -356,6 +357,24 @@ class scheduler_editslot_form extends scheduler_slotform_base {
             }
         }
 
+        // Check whether new students have enough credits.
+        $creditfacade = credits_facade::instance();
+        if ($this->scheduler->is_requiring_credits_to_book()) {
+            for ($i = 0; $i < $data['appointment_repeats']; $i++) {
+                if ($data['deletestudent'][$i]) {
+                    continue;
+                } else if ($data['appointid'][$i]) {
+                    continue;
+                } else if (!$data['studentid'][$i]) {
+                    continue;
+                }
+                if (!$creditfacade->has_enough_credits_at($data['studentid'][$i], new DateTimeImmutable('@' . $data['starttime']),
+                        $data['duration'])) {
+                    $errors['studgroup[' . $i . ']'] = get_string('studentnotenoughcredits', 'scheduler');
+                }
+            }
+        }
+
         if (!isset($data['ignoreconflicts'])) {
             /* Avoid overlapping slots by warning the user */
             $conflicts = $this->scheduler->get_conflicts(
@@ -436,6 +455,8 @@ class scheduler_editslot_form extends scheduler_slotform_base {
      * @return slot the updated slot
      */
     public function save_slot($slotid, $data) {
+        global $DB;
+        $transaction = $DB->start_delegated_transaction();
 
         $context = $this->scheduler->get_context();
 
@@ -464,6 +485,9 @@ class scheduler_editslot_form extends scheduler_slotform_base {
                 $this->noteoptions, $editor['text']);
         $slot->notesformat = $editor['format'];
 
+        $creditsfacade = credits_facade::instance();
+        $requirescredits = $this->scheduler->is_requiring_credits_to_book();
+
         $currentapps = $slot->get_appointments();
         for ($i = 0; $i < $data->appointment_repeats; $i++) {
             if ($data->deletestudent[$i] != 0) {
@@ -480,6 +504,12 @@ class scheduler_editslot_form extends scheduler_slotform_base {
                     $app->studentid = $data->studentid[$i];
                     $app->timecreated = time();
                     $app->save();
+
+                    if ($requirescredits) {
+                        $creditsspent = $creditsfacade->spend_credits_for_appointment($app);
+                        $app->creditsspent = $creditsspent;
+                        $app->save();
+                    }
                 }
                 $app->attended = isset($data->attended[$i]);
 
@@ -506,6 +536,7 @@ class scheduler_editslot_form extends scheduler_slotform_base {
         }
 
         $slot->save();
+        $DB->commit_delegated_transaction($transaction);
 
         $slot = $this->scheduler->get_slot($slot->id);
 

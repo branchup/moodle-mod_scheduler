@@ -27,6 +27,8 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir.'/filelib.php');
 require_once(dirname(__FILE__).'/customlib.php');
 
+use block_credits\manager;
+use mod_scheduler\local\credits\credits_facade;
 use mod_scheduler\model\scheduler;
 
 
@@ -414,8 +416,16 @@ function mod_scheduler_book_slot($scheduler, $slotid, $userid, $groupid, $formda
         }
     }
 
+    $creditsfacade = credits_facade::instance();
+    $requirescredits = $scheduler->is_requiring_credits_to_book();
+
     // Create new appointment for each member of the group.
     foreach ($userstobook as $studentid) {
+        $transaction = $DB->start_delegated_transaction();
+        if ($requirescredits && !$creditsfacade->has_enough_credits_for_slot($studentid, $slot)) {
+            throw new moodle_exception('notenoughcreditstobook', 'mod_scheduler');
+        }
+
         $appointment = $slot->create_appointment();
         $appointment->studentid = $studentid;
         $appointment->attended = 0;
@@ -426,6 +436,13 @@ function mod_scheduler_book_slot($scheduler, $slotid, $userid, $groupid, $formda
         if ($studentid == $userid && $formdata) {
             mod_scheduler_save_booking_data($appointment, $formdata);
         }
+
+        if ($requirescredits) {
+            $creditsspent = $creditsfacade->spend_credits_for_appointment($appointment);
+            $appointment->creditsspent = $creditsspent;
+            $appointment->save();
+        }
+        $DB->commit_delegated_transaction($transaction);
 
         \mod_scheduler\event\booking_added::create_from_slot($slot)->trigger();
 

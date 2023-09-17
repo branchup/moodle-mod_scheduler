@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_scheduler\local\credits\credits_facade;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
@@ -89,6 +91,17 @@ class mod_scheduler_mod_form extends moodleform_mod {
 
         $mform->addGroup($modegroup, 'modegrp', get_string('mode', 'scheduler'), ' ', false);
         $mform->addHelpButton('modegrp', 'appointmentmode', 'scheduler');
+
+        $creditsfacade = credits_facade::instance();
+        if ($creditsfacade->is_available()) {
+            $mform->addElement('selectyesno', 'usecredits', get_string('requirecreditstobook', 'scheduler'));
+            $mform->addHelpButton('usecredits', 'requirecreditstobook', 'scheduler');
+            $mform->disabledIf('bookingrouping', 'usecredits', 'eq', '1');
+        } else {
+            $mform->addElement('hidden', 'usecredits');
+            $mform->setType('usecredits', PARAM_BOOL);
+            $mform->setConstant('usecredits', 0);
+        }
 
         if (get_config('mod_scheduler', 'groupscheduling')) {
             $selopt = array(
@@ -273,6 +286,10 @@ class mod_scheduler_mod_form extends moodleform_mod {
         // Ensure late bookings are disallowed when guard time is used.
         if (!empty($data->guardtime)) {
             $data->acceptlatebookings = 0;
+        }
+        // Ensure group bookings aren't enabled with credits.
+        if (!empty($data->usecredits)) {
+            $data->bookingrouping = -1;
         }
     }
 

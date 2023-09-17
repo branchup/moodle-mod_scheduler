@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_scheduler\local\credits\credits_facade;
+
 defined('MOODLE_INTERNAL') || die();
 
 $appointgroup = optional_param('appointgroup', -1, PARAM_INT);
@@ -131,6 +133,7 @@ if (count($pastslots) > 0) {
     echo $output->render($slottable);
 }
 
+$requirescreditstobook = $scheduler->is_requiring_credits_to_book();
 
 $upcomingslots = $scheduler->get_upcoming_slots_for_student($USER->id);
 
@@ -237,6 +240,12 @@ if (!$canseefull && $bookablecnt == 0) {
             }
         }
 
+        // Check whether the student has enough credits to book this slot.
+        if ($canbookthisslot && $requirescreditstobook) {
+            $creditsfacade = credits_facade::instance();
+            $canbookthisslot = $creditsfacade->has_enough_credits_for_slot($USER->id, $slot);
+        }
+
         // Display the list of others when allowed, and booking is possible, or the user has
         // access to the list of full slots. This ensures that we are not disclosing the list
         // students to the potential watchers. The introduction of the watch list has allowed
@@ -283,6 +292,24 @@ if (!$canseefull && $bookablecnt == 0) {
         echo html_writer::div($bookingmsg1, 'studentbookingmessage');
         echo html_writer::div($bookingmsg2, 'studentbookingmessage');
     }
+
+    if ($requirescreditstobook) {
+        $creditsfacade = credits_facade::instance();
+        $availablecredits = $creditsfacade->get_available_credits($USER->id);
+        $creditsmessage = null;
+        if ($availablecredits) {
+            $farthestcredit = $creditsfacade->get_farthest_available_credit_validity($USER->id);
+            $creditsmessage = get_string('creditsrequiredtobookyouhavexuntilx', 'mod_scheduler', [
+                'count' => $availablecredits,
+                'latestdate' => userdate(($farthestcredit ?? new DateTime())->getTimestamp(),
+                    get_string('strftimedatemonthabbr', 'core_langconfig')),
+            ]);
+        } else {
+            $creditsmessage = get_string('creditsrequiredtobookyouhavenone', 'mod_scheduler');
+        }
+        echo html_writer::tag('p', $creditsmessage);
+    }
+
     if ($total > $pagesize) {
         echo $output->paging_bar($total, $offset, $pagesize, $actionurl, 'offset');
     }

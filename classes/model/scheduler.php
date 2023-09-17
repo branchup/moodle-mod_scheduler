@@ -30,6 +30,7 @@ require_once($CFG->libdir . '/completionlib.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 
 use completion_info;
+use mod_scheduler\local\credits\credits_facade;
 use mod_scheduler\slots_query_builder;
 
 /**
@@ -316,6 +317,15 @@ class scheduler extends mvc_record_model {
         } else {
             return true;
         }
+    }
+
+    /**
+     * Whether credits are required to book.
+     *
+     * @return bool
+     */
+    public function is_requiring_credits_to_book() {
+        return (bool) $this->data->usecredits && credits_facade::instance()->is_available();
     }
 
     /**
