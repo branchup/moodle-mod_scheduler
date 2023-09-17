@@ -225,6 +225,8 @@ $string['copytomyself'] = 'Send a copy to myself';
 $string['couldnotresolveteacher'] = 'Could not resolve the teacher to an existing user account.';
 $string['course'] = 'Course';
 $string['createexport'] = 'Create export file';
+$string['creditsrequiredtobookyouhavenone'] = 'Credits are required to book a slot. You do not have any available credits.';
+$string['creditsrequiredtobookyouhavexuntilx'] = 'Credits are required to book a slot. You have {$a->count} credits available to book slots occurring up until {$a->latestdate}.';
 $string['csvfile'] = 'CSV file';
 $string['csvformat'] = 'CSV';
 $string['csvfieldseparator'] = 'Field separator for CSV';
@@ -473,6 +475,8 @@ $string['recentandupcomingslots'] = 'Recent and upcoming slots';
 $string['recipients'] = 'Recipients';
 $string['registeredlbl'] = 'Student appointed';
 $string['reminder'] = 'Reminder';
+$string['requirecreditstobook'] = 'Require credits to book';
+$string['requirecreditstobook_help'] = 'A student must spend credits to be book an appointmemt. This option is incompatible with booking in groups.';
 $string['requireupload'] = 'File upload required';
 $string['resetslots'] = 'Delete scheduler slots';
 $string['results'] = 'Results';
@@ -539,6 +543,7 @@ $string['studentcomments'] = 'Student\'s message';
 $string['studentdetails'] = 'Student details';
 $string['studentfiles'] = 'Uploaded files';
 $string['studentmultiselect'] = 'Each student can be selected only once in this slot';
+$string['studentnotenoughcredits'] = 'The student does not have enough credits to have an appointment.';
 $string['studentnote'] = 'Message by student';
 $string['students'] = 'Students';
 $string['studentprovided'] = 'Student provided: {$a}';
@@ -798,3 +803,7 @@ $string['email_invite_html'] = '<p>Please choose a time slot for an appointment 
 
 $string['email_invitereminder_subject'] = 'Reminder: {$a->module}';
 $string['email_invitereminder_html'] = '<p>This is just a reminder that you have not yet set up your appointment. Please choose a time slot as soon as possible at:</p><p>{$a->scheduler_url}</p>';
+
+/** Credit reasons. */
+$string['creditreasonslotbooked'] = 'Appointment booked: {$a->datetime} ({$a->minutes} min).';
+$string['creditreasonslotcancelled'] = 'Appointment cancelled: {$a->datetime} ({$a->minutes} min).';

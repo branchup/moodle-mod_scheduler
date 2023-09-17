@@ -24,6 +24,8 @@
 
 namespace mod_scheduler\model;
 
+use mod_scheduler\local\credits\credits_facade;
+
 defined('MOODLE_INTERNAL') || die();
 
 // Elements from lib.php needed for grade functionality.
@@ -97,8 +99,18 @@ class appointment extends mvc_child_record_model {
      * delete
      */
     public function delete() {
+        global $DB;
+        $transaction = $DB->start_delegated_transaction();
+
         $studid = $this->studentid;
         parent::delete();
+
+        // Refund credits when deleting the appointment.
+        if ($this->get_scheduler()->is_requiring_credits_to_book()) {
+            $creditsfacade = credits_facade::instance();
+            $creditsfacade->refund_credits_for_cancelled_appointment($this);
+        }
+        $DB->commit_delegated_transaction($transaction);
 
         $scheddata = $this->get_scheduler()->get_data();
         scheduler_update_grades($scheddata, $studid);

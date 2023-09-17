@@ -130,6 +130,11 @@ class restore_scheduler_activity_structure_step extends restore_activity_structu
 
         $data->studentid = $this->get_mappingid('user', $data->studentid);
 
+        // Never restore the credits operation ID to prevent double refunds. This is not the ideal
+        // solution, but it's the easiest to avoid unexpected refunds. We can safely remove this
+        // once we implement a flag that a transaction has been refunded.
+        $data->creditsopid = null;
+
         $newitemid = $DB->insert_record('scheduler_appointment', $data);
         $this->set_mapping('scheduler_appointment', $oldid, $newitemid, true);
     }
