@@ -55,12 +55,15 @@ class slot_booked_reason implements reason, reason_with_location {
     protected $schedulerid;
     /** @var int */
     protected $starttime;
+    /** @var int Duration in seconds. */
+    protected $duration;
 
-    public function __construct($schedulerid, $slotid, $appointmentid, $starttime) {
+    public function __construct($schedulerid, $slotid, $appointmentid, $starttime, $duration) {
         $this->schedulerid = (int) $schedulerid;
         $this->slotid = (int) $slotid;
         $this->appointmentid = (int) $appointmentid;
         $this->starttime = (int) $starttime;
+        $this->duration = (int) $duration;
     }
 
     public function get_component() {
@@ -72,14 +75,21 @@ class slot_booked_reason implements reason, reason_with_location {
     }
 
     public function get_args() {
-        return ['appointmentid' => $this->appointmentid, 'slotid' => $this->slotid, 'schedulerid' => $this->schedulerid,
-            'starttime' => $this->starttime];
+        return [
+            'appointmentid' => $this->appointmentid,
+            'slotid' => $this->slotid,
+            'schedulerid' => $this->schedulerid,
+            'starttime' => $this->starttime,
+            'duration' => $this->duration,
+        ];
     }
 
     public function get_description() {
         $dt = (new DateTimeImmutable('@' . $this->starttime))->setTimezone(core_date::get_server_timezone_object());
+        $minutes = floor($this->duration / MINSECS);
         return new lang_string('creditreasonslotbooked', 'mod_scheduler', [
-            'datetime' => $dt->format('Y-m-d H:i')
+            'datetime' => $dt->format('Y-m-d H:i'),
+            'minutes' => $minutes ?: '?', // Handle falsy/zero for previous non-production versions.
         ]);
     }
 
@@ -125,8 +135,9 @@ class slot_booked_reason implements reason, reason_with_location {
     }
 
     public static function from_appointment(appointment $appointment) {
-        return new self($appointment->get_slot()->schedulerid, $appointment->slotid, $appointment->id,
-            $appointment->get_slot()->starttime);
+        $slot = $appointment->get_slot();
+        return new self($slot->schedulerid, $appointment->slotid, $appointment->id,
+            $slot->starttime, $slot->duration * MINSECS);
     }
 
 }

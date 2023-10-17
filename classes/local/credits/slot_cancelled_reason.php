@@ -52,10 +52,13 @@ class slot_cancelled_reason implements reason, reason_with_location {
     protected $schedulerid;
     /** @var int */
     protected $starttime;
+    /** @var int Duration in seconds. */
+    protected $duration;
 
-    public function __construct($schedulerid, $starttime) {
+    public function __construct($schedulerid, $starttime, $duration) {
         $this->schedulerid = (int) $schedulerid;
         $this->starttime = (int) $starttime;
+        $this->duration = (int) $duration;
     }
 
     public function get_component() {
@@ -67,13 +70,19 @@ class slot_cancelled_reason implements reason, reason_with_location {
     }
 
     public function get_args() {
-        return ['schedulerid' => $this->schedulerid, 'starttime' => $this->starttime];
+        return [
+            'schedulerid' => $this->schedulerid,
+            'starttime' => $this->starttime,
+            'duration' => $this->duration,
+        ];
     }
 
     public function get_description() {
         $dt = (new DateTimeImmutable('@' . $this->starttime))->setTimezone(core_date::get_server_timezone_object());
+        $minutes = floor($this->duration / MINSECS);
         return new lang_string('creditreasonslotcancelled', 'mod_scheduler', [
-            'datetime' => $dt->format('Y-m-d H:i')
+            'datetime' => $dt->format('Y-m-d H:i'),
+            'minutes' => $minutes ?: '?', // Handle falsy/zero for previous non-production versions.
         ]);
     }
 
@@ -104,7 +113,7 @@ class slot_cancelled_reason implements reason, reason_with_location {
     }
 
     public static function from_slot(slot $slot) {
-        return new self($slot->schedulerid, $slot->starttime);
+        return new self($slot->schedulerid, $slot->starttime, $slot->duration * MINSECS);
     }
 
     public static function from_appointment(appointment $appointment) {

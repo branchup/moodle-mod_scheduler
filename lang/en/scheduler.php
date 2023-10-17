@@ -748,5 +748,5 @@ $string['email_invitereminder_subject'] = 'Reminder: {$a->module}';
 $string['email_invitereminder_html'] = '<p>This is just a reminder that you have not yet set up your appointment. Please choose a time slot as soon as possible at:</p><p>{$a->scheduler_url}</p>';
 
 /** Credit reasons. */
-$string['creditreasonslotbooked'] = 'Appointment booked: {$a->datetime}.';
-$string['creditreasonslotcancelled'] = 'Appointment cancelled: {$a->datetime}.';
+$string['creditreasonslotbooked'] = 'Appointment booked: {$a->datetime} ({$a->minutes} min).';
+$string['creditreasonslotcancelled'] = 'Appointment cancelled: {$a->datetime} ({$a->minutes} min).';

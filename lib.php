@@ -792,9 +792,19 @@ function scheduler_get_completion_state($course, $cm, $userid, $type) {
  */
 function scheduler_block_credits_restore_reason($code, $args) {
     if ($code === 'slot_booked') {
-        return new slot_booked_reason($args['schedulerid'], $args['slotid'], $args['appointmentid'], $args['starttime']);
+        return new slot_booked_reason(
+            $args['schedulerid'],
+            $args['slotid'],
+            $args['appointmentid'],
+            $args['starttime'],
+            $args['duration'] ?? 0
+        );
     } else if ($code === 'slot_cancelled') {
-        return new slot_cancelled_reason($args['schedulerid'], $args['starttime']);
+        return new slot_cancelled_reason(
+            $args['schedulerid'],
+            $args['starttime'],
+            $args['duration'] ?? 0
+        );
     }
     return null;
 }
