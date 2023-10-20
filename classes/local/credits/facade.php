@@ -100,8 +100,8 @@ interface facade {
      * Spend credits for the booking an appointment.
      *
      * @param appointment $appointment The appointment.
-     * @return int The number of credits spent.
+     * @return object Containing credits spent (quantity) and operation ID (operationid). Operation could be null.
      */
-    public function spend_credits_for_appointment(appointment $appointment): int;
+    public function spend_credits_for_appointment(appointment $appointment);
 
 }

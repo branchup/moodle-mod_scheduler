@@ -70,8 +70,8 @@ class default_facade implements facade {
     public function refund_credits_for_cancelled_appointment(appointment $appointment) {
     }
 
-    public function spend_credits_for_appointment(appointment $appointment): int {
-        return 0;
+    public function spend_credits_for_appointment(appointment $appointment) {
+        return ['quantity' => 0, 'operationid' => null];
     }
 
 }

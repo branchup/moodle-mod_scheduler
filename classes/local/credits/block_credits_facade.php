@@ -78,20 +78,22 @@ class block_credits_facade implements facade {
     }
 
     public function refund_credits_for_cancelled_appointment(appointment $appointment) {
-        $creditsspent = $appointment->creditsspent;
-        if ($creditsspent <= 0) {
-            return $creditsspent;
+        $creditsopid = $appointment->creditsopid;
+        if (empty($creditsopid)) {
+            return;
         }
         $reason = slot_cancelled_reason::from_appointment($appointment);
-        $validasat = new DateTimeImmutable('@' . $appointment->get_slot()->starttime);
-        $this->manager->refund_user_credits($appointment->studentid, $creditsspent, $reason, $validasat);
+        $this->manager->refund_from_operation_id($appointment->studentid, $creditsopid, $reason);
     }
 
-    public function spend_credits_for_appointment(appointment $appointment): int {
+    public function spend_credits_for_appointment(appointment $appointment) {
         $reason = slot_booked_reason::from_appointment($appointment);
         $quantity = $this->get_required_credits_for_slot($appointment->get_slot());
-        $this->manager->spend_user_credits($appointment->studentid, $quantity, $reason);
-        return $quantity;
+        $opid = $this->manager->spend_user_credits($appointment->studentid, $quantity, $reason);
+        return (object) [
+            'quantity' => $quantity,
+            'operationid' => $opid,
+        ];
     }
 
 }

@@ -438,8 +438,8 @@ function mod_scheduler_book_slot($scheduler, $slotid, $userid, $groupid, $formda
         }
 
         if ($requirescredits) {
-            $creditsspent = $creditsfacade->spend_credits_for_appointment($appointment);
-            $appointment->creditsspent = $creditsspent;
+            $spendresult = $creditsfacade->spend_credits_for_appointment($appointment);
+            $appointment->creditsopid = $spendresult->operationid;
             $appointment->save();
         }
         $DB->commit_delegated_transaction($transaction);

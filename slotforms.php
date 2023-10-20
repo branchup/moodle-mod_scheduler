@@ -506,8 +506,8 @@ class scheduler_editslot_form extends scheduler_slotform_base {
                     $app->save();
 
                     if ($requirescredits) {
-                        $creditsspent = $creditsfacade->spend_credits_for_appointment($app);
-                        $app->creditsspent = $creditsspent;
+                        $spendresult = $creditsfacade->spend_credits_for_appointment($app);
+                        $app->creditsopid = $spendresult->operationid;
                         $app->save();
                     }
                 }
