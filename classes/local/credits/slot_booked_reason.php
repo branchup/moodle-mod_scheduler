@@ -112,26 +112,33 @@ class slot_booked_reason implements reason, reason_with_location {
     }
 
     public function get_url() {
-        global $USER;
+        global $DB, $USER;
+
         $scheduler = $this->get_scheduler();
-        if ($scheduler) {
+        $pageurl = $scheduler ? new moodle_url('/mod/scheduler/view.php', ['id' => $scheduler->get_cmid()]) : null;
+
+        if ($scheduler && $DB->record_exists('scheduler_appointment', ['id' => $this->appointmentid])) {
+            $pageurl = new moodle_url('/mod/scheduler/view.php', [
+                'a' => $this->schedulerid,
+                'appointmentid' => $this->appointmentid,
+                'what' => 'viewbooking',
+                'sesskey' => sesskey()
+            ]);
+
+            // Different URL if teacher.
             $cmid = $scheduler->get_cmid();
             $context = context_module::instance($cmid);
             $permissions = new \mod_scheduler\permission\scheduler_permissions($context, $USER->id);
             if ($permissions->is_teacher()) {
-                return new moodle_url('/mod/scheduler/view.php', [
+                $pageurl = new moodle_url('/mod/scheduler/view.php', [
                     'id' => $cmid,
                     'appointmentid' => $this->appointmentid,
                     'what' => 'viewstudent',
                 ]);
             }
         }
-        return new moodle_url('/mod/scheduler/view.php', [
-            'a' => $this->schedulerid,
-            'appointmentid' => $this->appointmentid,
-            'what' => 'viewbooking',
-            'sesskey' => sesskey()
-        ]);
+
+        return $pageurl;
     }
 
     public static function from_appointment(appointment $appointment) {
