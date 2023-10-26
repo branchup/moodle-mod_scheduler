@@ -47,7 +47,8 @@ class backup_scheduler_activity_structure_step extends backup_activity_structure
             'scale', 'gradingstrategy', 'bookingrouping', 'usenotes',
             'usebookingform', 'bookinginstructions', 'bookinginstructionsformat',
             'usestudentnotes', 'requireupload', 'uploadmaxfiles', 'uploadmaxsize',
-            'usecaptcha', 'timemodified', 'completionattended', 'canwatch', 'acceptlatebookings'));
+            'usecaptcha', 'timemodified', 'completionattended', 'canwatch', 'acceptlatebookings',
+            'usecredits'));
 
         $slots = new backup_nested_element('slots');
 
@@ -61,7 +62,8 @@ class backup_scheduler_activity_structure_step extends backup_activity_structure
         $appointment = new backup_nested_element('appointment', array('id'), array(
             'studentid', 'attended', 'grade',
             'appointmentnote', 'appointmentnoteformat', 'teachernote', 'teachernoteformat',
-            'studentnote', 'studentnoteformat', 'timecreated', 'timemodified'));
+            'studentnote', 'studentnoteformat', 'timecreated', 'timemodified',
+            'creditsopid'));
 
         $watchers = new backup_nested_element('watchers');
         $watcher = new backup_nested_element('watcher', ['id'], ['slotid', 'userid']);
