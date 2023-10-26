@@ -88,8 +88,10 @@ class block_credits_facade implements facade {
 
     public function spend_credits_for_appointment(appointment $appointment) {
         $reason = slot_booked_reason::from_appointment($appointment);
-        $quantity = $this->get_required_credits_for_slot($appointment->get_slot());
-        $opid = $this->manager->spend_user_credits($appointment->studentid, $quantity, $reason);
+        $slot = $appointment->get_slot();
+        $quantity = $this->get_required_credits_for_slot($slot);
+        $validasat = new DateTimeImmutable('@' . $slot->starttime);
+        $opid = $this->manager->spend_user_credits($appointment->studentid, $quantity, $reason, $validasat);
         return (object) [
             'quantity' => $quantity,
             'operationid' => $opid,
