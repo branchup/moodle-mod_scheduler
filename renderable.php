@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 use \mod_scheduler\model\scheduler;
 use \mod_scheduler\model\slot;
 use \mod_scheduler\model\appointment;
+use mod_scheduler\output\action_menu_link;
 
 /**
  * This class represents a table of slots associated with one student
@@ -352,8 +353,10 @@ class scheduler_command_bar implements renderable {
         if ($confirmkey) {
             $confirmaction = new confirm_action(get_string($confirmkey, 'scheduler'));
         }
-        $act = new action_link($url, $title, $confirmaction, $attributes, $pix);
-        $act->primary = false;
+        $act = new action_menu_link($url, $pix, $title, false, $attributes);
+        if ($confirmaction) {
+            $act->add_action($confirmaction);
+        }
         return $act;
     }
 
@@ -640,6 +643,11 @@ class scheduler_appointment_info implements renderable {
      * @var bool whether to show grades and appointment notes
      */
     public $showresult;
+
+    /**
+     * @var bool Whether to show the booking info.
+     */
+    public $showboookinginfo;
 
     /**
      * Create appointment information for a new appointment in a slot.

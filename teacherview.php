@@ -583,7 +583,6 @@ if ($slots) {
                                 array($delselectedurl->out(false)) );
     $delselected = $commandbar->action_link($delselectedurl, 'deleteselection', 't/delete',
                                             'confirmdelete-selected', 'delselected');
-    $delselected->formid = 'delselected';
     $delbuttons[] = $delselected;
 
     if ($permissions->can_edit_all_slots() && $subpage == 'allappointments') {

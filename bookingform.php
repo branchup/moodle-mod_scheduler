@@ -46,6 +46,8 @@ class scheduler_booking_form extends moodleform {
     protected $uploadoptions;
     /** @var mixed */
     protected $existing;
+    /** @var array */
+    protected $noteoptions;
 
     /**
      * scheduler_booking_form constructor.

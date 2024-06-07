@@ -53,7 +53,7 @@ class privacy_test extends provider_testcase {
     protected $moduleid;
 
     /**
-     * @var the module context used for testing
+     * @var \context the module context used for testing
      */
     protected $context;
 
@@ -73,19 +73,29 @@ class privacy_test extends provider_testcase {
     protected $slotid;
 
     /**
-     * @var int first student used in testing - a student that has an appointment
+     * @var object first student used in testing - a student that has an appointment
      */
     protected $student1;
 
     /**
-     * @var int second student used in testing - a student that has an appointment
+     * @var object second student used in testing - a student that has an appointment
      */
     protected $student2;
+
+    /**
+     * @var object Third student used in testing.
+     */
+    protected $student3;
 
     /**
      * @var array all students (only id) involved in the scheduler
      */
     protected $allstudents;
+
+    /**
+     * @var int[] Appointment IDs used for testing.
+     */
+    protected $appointmentids;
 
     protected function setUp(): void {
         global $DB, $CFG;
