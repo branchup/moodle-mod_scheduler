@@ -14,14 +14,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Potential user selector module.
+ * Get available students.
  *
- * @module     mod_scheduler/studentid
+ * @module     mod_scheduler/get_available_students
  * @copyright  2022 University of Glasgow
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
+define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax) {
 
     return /** @alias module:mod_scheduler/studentid */ {
 
@@ -30,47 +30,23 @@ define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
             $.each(results, function(index, user) {
                 users.push({
                     value: user.id,
-                    label: user._label
+                    label: user.fullname
                 });
             });
             return users;
         },
 
         transport: function(selector, query, success, failure) {
-            var promise;
-
-            let scheduler = $(selector).attr('scheduler') || null;
-            let groupids = $(selector).attr('groupids') || null;
-            promise = Ajax.call([{
-                methodname: 'mod_scheduler_studentid',
+            const scheduler = $(selector).data('schedulerid') || null;
+            const groupids = ($(selector).data('groupids') || '').split(',').map(gid => parseInt(gid, 10)).filter(Boolean);
+            Ajax.call([{
+                methodname: 'mod_scheduler_get_available_students',
                 args: {
                     query: query,
                     scheduler: scheduler,
-                    groupids: groupids
+                    groupids: groupids.length ? groupids : undefined
                 }
-            }]);
-
-            promise[0].then(function(results) {
-                var promises = [],
-                    i = 0;
-
-                // Render the label.
-                $.each(results, function(index, user) {
-                    promises.push(Templates.render('mod_scheduler/studentid', user));
-                });
-
-                // Apply the label to the results.
-                return $.when.apply($.when, promises).then(function() {
-                    var args = arguments;
-                    $.each(results, function(index, user) {
-                        user._label = args[i];
-                        i++;
-                    });
-                    success(results);
-                    return;
-                });
-
-            }).fail(failure);
+            }])[0].then(success).fail(failure);
         }
 
     };

@@ -304,6 +304,91 @@ class external extends external_api {
      *
      * @return external_function_parameters
      */
+    public static function get_available_students_parameters() {
+        return new external_function_parameters([
+            'query' => new external_value(PARAM_TEXT, 'The search query', VALUE_REQUIRED),
+            'scheduler' => new external_value(PARAM_INT, 'The scheduler id', VALUE_REQUIRED),
+            'groupids' => new external_multiple_structure(
+                new external_value(PARAM_INT, 'The group ID'),
+                'The list of group IDs',
+                VALUE_DEFAULT,
+                null,
+                NULL_ALLOWED
+            ),
+        ]);
+    }
+
+    /**
+     * Fetch the details of a user's data request.
+     *
+     * @param string $query The search query.
+     * @param string $scheduler The scheduler id.
+     * @param string $groupid The group ID.
+     * @return array
+     */
+    public static function get_available_students($query, $scheduler, $groupids = null) {
+        global $USER;
+
+        $params = external_api::validate_parameters(self::get_available_students_parameters(), [
+            'query' => $query,
+            'scheduler' => $scheduler,
+            'groupids' => $groupids
+        ]);
+        $query = $params['query'];
+        $scheduler = $params['scheduler'];
+        $groupids = $params['groupids'];
+
+        $scheduler = scheduler::load_by_id($scheduler);
+        $context = $scheduler->get_context();
+        static::validate_context($context);
+        $permissions = new scheduler_permissions($context, $USER->id);
+
+        // List of students should only be called when editing the slots. For reference, the
+        // permission 'can_edit_own_slots' when creating, cancelling, etc. student appointments.
+        $permissions->ensure($permissions->can_edit_own_slots());
+
+        // Validate access to group.
+        $cm = $scheduler->get_cm();
+        $groupmode = groups_get_activity_groupmode($cm);
+        $aag = has_capability('moodle/site:accessallgroups', $context);
+        if ((is_array($groupids) || $groupmode) && !$aag) {
+            $groupsicansee = groups_get_all_groups($scheduler->get_courseid(), $aag ? 0 : $USER->id, $cm->groupingid);
+            $groupids = array_intersect($groupids ?? [], array_keys($groupsicansee));
+        }
+
+        // Retrieve students.
+        $students = [];
+        $availablestudents = $scheduler->get_available_students($groupids ?? 0);
+        foreach ($availablestudents as $id => $student) {
+            $fullname = fullname($student);
+            if (core_text::strpos($fullname, $query) !== false) {
+                $students[] = ['id' => $id, 'fullname' => $fullname];
+            }
+        }
+
+        return $students;
+
+    }
+
+    /**
+     * External function return structure.
+     *
+     * @return external_description
+     */
+    public static function get_available_students_returns() {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'id' => new external_value(PARAM_INT, 'User ID'),
+                'fullname' => new external_value(PARAM_NOTAGS, 'User fullname')
+            ])
+        );
+    }
+
+    /**
+     * External function parameters.
+     *
+     * @return external_function_parameters
+     */
     public static function get_available_slots_parameters() {
         return new external_function_parameters([
             'cmid' => new external_value(PARAM_INT),
@@ -442,77 +527,6 @@ class external extends external_api {
      */
     public static function revoke_appointment_returns() {
         return new external_value(PARAM_BOOL);
-    }
-
-    /**
-     * studentid parameters
-     *
-     * @return external_function_parameters
-     */
-    public static function studentid_parameters() {
-        return new external_function_parameters([
-            'query' => new external_value(PARAM_TEXT, 'The search query', VALUE_REQUIRED),
-            'scheduler' => new external_value(PARAM_INT, 'The scheduler id', VALUE_REQUIRED),
-            'groupids' => new external_value(PARAM_INT, 'The group ids', VALUE_DEFAULT)
-        ]);
-    }
-
-    /**
-     * Fetch the details of a user's data request.
-     *
-     * @since Moodle 3.5
-     * @param string $query The search query.
-     * @param string $scheduler The scheduler id.
-     * @param string $groupids The group ids.
-     * @return array
-     * @throws required_capability_exception
-     * @throws dml_exception
-     * @throws invalid_parameter_exception
-     * @throws restricted_context_exception
-     */
-
-    public static function studentid($query, $scheduler, $groupids) {
-        $params = external_api::validate_parameters(self::studentid_parameters(), [
-            'query' => $query,
-            'scheduler' => $scheduler,
-            'groupids' => $groupids
-        ]);
-        $query = $params['query'];
-        $scheduler = $params['scheduler'];
-        $groupids = $params['groupids'];
-
-        $scheduler = scheduler::load_by_id($scheduler);
-        $availablestudents = $scheduler->get_available_students();
-
-        $students = [];
-        $i = 0;
-        foreach ($availablestudents as $id => $student) {
-            $fullname = fullname($student);
-
-            if (mb_strpos($fullname, $query) !== false) {
-                $students[] = ['id' => $id, 'fullname' => fullname($student)];
-                $i++;
-            }
-        }
-
-        return $students;
-
-    }
-
-    /**
-     * Parameter description for get_users().
-     *
-     * @since Moodle 3.5
-     * @return external_description
-     * @throws coding_exception
-     */
-    public static function studentid_returns() {
-        return new external_multiple_structure(
-            new external_single_structure([
-                'id'    => new external_value(PARAM_INT, 'User ID'),
-                'fullname'  => new external_value(PARAM_NOTAGS, 'User fullname')
-            ])
-        );
     }
 
     /**

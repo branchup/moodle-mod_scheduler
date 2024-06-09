@@ -211,10 +211,6 @@ class scheduler_editslot_form extends scheduler_slotform_base {
         if (isset($this->_customdata['timeoptions'])) {
             $timeoptions = $this->_customdata['timeoptions'];
         }
-        $offset = null;
-        if (isset($this->_customdata['offset'])) {
-            $offset = $this->_customdata['offset'];
-        }
 
         // Start date/time of the slot.
         $mform->addElement('date_time_selector', 'starttime', get_string('date', 'scheduler'), $timeoptions);
@@ -251,30 +247,16 @@ class scheduler_editslot_form extends scheduler_slotform_base {
 
         $repeatarray = array();
         $grouparray = array();
-        $repeatarray[] = $mform->createElement('header', 'appointhead', get_string('appointmentno', 'scheduler', '{number}'));
+        $repeatarray[] = $mform->createElement('header', 'appointhead', get_string('appointmentno', 'scheduler', '{no}'));
 
-        $options = [
-            'ajax' => 'mod_scheduler/studentid',
-            'valuehtmlcallback' => function($value) {
-                global $OUTPUT;
-
-                $userfieldsapi = \core_user\fields::for_name();
-                $allusernames = $userfieldsapi->get_sql('', false, '', '', false)->selects;
-                $fields = 'id, ' . $allusernames;
-                $user = \core_user::get_user($value, $fields);
-                $useroptiondata = [
-                    'fullname' => fullname($user)
-                ];
-
-                return $OUTPUT->render_from_template('mod_scheduler/studentid', $useroptiondata);
-            }
-
-        ];
-
-        if (!empty($this->_customdata['scheduler'])) {
-            $options['scheduler'] = $this->_customdata['scheduler'];
-        }
-        $grouparray[] = $mform->createElement('autocomplete', 'studentid', '', [], $options);
+        $grouparray[] = $mform->createElement('autocomplete', 'studentid', '', [], [
+            'ajax' => 'mod_scheduler/get_available_students',
+            'valuehtmlcallback' => ['scheduler_editslot_form', 'get_available_students_value_html_callback'],
+            'data-schedulerid' => $this->scheduler->get_id(),
+            'data-groupids' => implode(',', array_map(function($group) {
+                return $group->id;
+            }, $this->usergroups ?: [])),
+        ]);
 
         $grouparray[] = $mform->createElement('hidden', 'appointid', 0);
 
@@ -327,17 +309,8 @@ class scheduler_editslot_form extends scheduler_slotform_base {
         $this->repeat_elements($repeatarray, $repeatno, $repeateloptions,
                         'appointment_repeats', 'appointment_add', 1, get_string('addappointment', 'scheduler'));
 
-        $appointmentsperpage = get_config('mod_scheduler', 'appointmentsperpage');
-        // Fix appointment numbers affected by paging here. repeat_elements doesn't support paging.
-
-        $number = $offset * $appointmentsperpage;
-        foreach ($this->_form->_elements as $element) {
-            if (is_a($element, 'HTML_QuickForm_header')) {
-                $element->setValue(str_replace('{number}', ($number + 1), $element->_text));
-                $number++;
-            }
-        }
         $this->add_action_buttons();
+
     }
 
     /**
@@ -409,7 +382,7 @@ class scheduler_editslot_form extends scheduler_slotform_base {
      * @param slot $slot
      * @return stdClass form data
      */
-    public function prepare_formdata(slot $slot, $offset = 0) {
+    public function prepare_formdata(slot $slot) {
 
         $context = $slot->get_scheduler()->get_context();
 
@@ -427,33 +400,7 @@ class scheduler_editslot_form extends scheduler_slotform_base {
         }
 
         $i = 0;
-        $slots = $slot->get_appointments();
-
-        $start = 0;
-        $end = count($slots);
-        $appointmentsperpage = get_config('mod_scheduler', 'appointmentsperpage');
-        if (!empty($appointmentsperpage)) {
-            $start = $offset * $appointmentsperpage;
-            $end = $start + $appointmentsperpage;
-        }
-
-        $counter = 0;
-        foreach ($slots as $appointment) {
-
-            // Appointments on forms page need to be indexed from zero, even when paging.
-            // Use $i for indexing appointments that will be repeated on form.
-            // When $i > $appointmentsperpage, break from loop.
-            if ($i >= $appointmentsperpage) {
-                break;
-            }
-
-            // Use counter to loop through appointments.
-            if ($counter < $start || $counter >= $end) {
-                $counter++;
-                continue;
-            }
-            $counter++;
-
+        foreach ($slot->get_appointments() as $appointment) {
             $data->appointid[$i] = $appointment->id;
             $data->studentid[$i] = $appointment->studentid;
             $data->attended[$i] = $appointment->attended;
@@ -562,6 +509,20 @@ class scheduler_editslot_form extends scheduler_slotform_base {
         $slot = $this->scheduler->get_slot($slot->id);
 
         return $slot;
+    }
+
+    /**
+     * Value HTML callback for get_available_students form element.
+     *
+     * @param int $value The value.
+     * @return string
+     */
+    public static function get_available_students_value_html_callback($value) {
+        $userfieldsapi = \core_user\fields::for_name();
+        $allusernames = $userfieldsapi->get_sql('', false, '', '', false)->selects;
+        $fields = 'id, ' . $allusernames;
+        $user = \core_user::get_user($value, $fields);
+        return $user ? fullname($user) : '? ' . $value;
     }
 }
 
