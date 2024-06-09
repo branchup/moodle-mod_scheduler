@@ -261,8 +261,7 @@ class scheduler_editslot_form extends scheduler_slotform_base {
         $grouparray[] = $mform->createElement('hidden', 'appointid', 0);
 
         // Seen tickbox.
-        $grouparray[] = $mform->createElement('static', 'attendedlabel', '', get_string('seen', 'scheduler'));
-        $grouparray[] = $mform->createElement('checkbox', 'attended');
+        $grouparray[] = $mform->createElement('checkbox', 'attended', get_string('seen', 'scheduler'));
 
         // Grade.
         if ($this->scheduler->scale != 0) {
