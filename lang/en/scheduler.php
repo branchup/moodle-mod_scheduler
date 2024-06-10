@@ -703,7 +703,18 @@ $string['email_reminder_plain'] = 'You have an upcoming appointment
 on {$a->date} from {$a->time} to {$a->endtime}
 with {$a->attendant}.
 
-Location: {$a->location}';
+Location: {$a->location}
+
+If you wish to make amendments to this appointment please return to:
+{$a->scheduler_url}';
+
+$string['email_reminder_html'] = '<p>You have an upcoming appointment on <strong>{$a->date}</strong>
+from <strong>{$a->time}</strong> to <strong>{$a->endtime}</strong><br/>
+with <strong><a href="{$a->attendant_url}">{$a->attendant}</a></strong>.</p>
+
+<p>Location: <strong>{$a->location}</strong></p>
+
+<p>If you wish to make amendments to this appointment please return to <a href="{$a->scheduler_url}">{$a->module}</a>.</p>';
 
 $string['email_slotopenedup_html'] = '<p>An appointment has become available for a slot on {$a->date} at {$a->time} with the {$a->staffrole} {$a->attendant}.</p>
 <p>This is regarding the activity titled &quot;<a href="{$a->scheduler_url}"><em>{$a->module}</em></a>&quot;, in the course &quot;<a href="{$a->course_url}"><em>{$a->course_short}: {$a->course}</em></a>&quot; on the website &quot;<a href="{$a->site_url}"><em>{$a->site}</em></a>&quot;.</p>';
@@ -712,11 +723,6 @@ $string['email_slotopenedup_plain'] = 'An appointment has become available for a
 This is regarding the activity titled "{$a->module}", in the course "{$a->course_short}: {$a->course}" on the website "{$a->site}".';
 $string['email_slotopenedup_subject'] = '{$a->course_short}: A slot became available';
 
-$string['email_reminder_html'] = '<p>You have an upcoming appointment on <strong>{$a->date}</strong>
-from <strong>{$a->time}</strong> to <strong>{$a->endtime}</strong><br/>
-with <strong><a href="{$a->attendant_url}">{$a->attendant}</a></strong>.</p>
-
-<p>Location: <strong>{$a->location}</strong></p>';
 
 $string['email_teachercancelled_subject'] = '{$a->course_short}: Appointment cancelled by the teacher';
 
