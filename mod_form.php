@@ -201,6 +201,7 @@ class mod_scheduler_mod_form extends moodleform_mod {
         // Common module settings.
         $this->standard_coursemodule_elements();
         $mform->setDefault('groupmode', NOGROUPS);
+        $this->apply_admin_defaults();
 
         $this->add_action_buttons();
     }

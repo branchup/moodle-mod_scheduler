@@ -28,6 +28,8 @@ if ($ADMIN->fulltree) {
 
     require_once($CFG->dirroot.'/mod/scheduler/lib.php');
 
+    $settings->add(new admin_setting_heading('schedulergeneralhdr', get_string('general', 'core'), ''));
+
     $settings->add(new admin_setting_configcheckbox('mod_scheduler/showemailplain',
                      get_string('showemailplain', 'scheduler'),
                      get_string('showemailplain_desc', 'scheduler'),
@@ -74,5 +76,16 @@ if ($ADMIN->fulltree) {
                     get_string('revealteachernotes', 'scheduler'),
                     get_string('revealteachernotes_desc', 'scheduler'),
                     0));
+
+    $settings->add(new admin_setting_heading('schedulerdefaultsettingshdr', get_string('defaultsettings', 'mod_scheduler'),
+        get_string('defaultsettings_desc', 'mod_scheduler')));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'scheduler/allownotifications',
+        get_string('notifications', 'mod_scheduler'),
+        get_string('notifications_help', 'mod_scheduler'),
+        0
+    ));
+
 
 }
