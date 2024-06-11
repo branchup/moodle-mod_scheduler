@@ -43,6 +43,9 @@ class slot extends mvc_child_record_model {
     /** @var mvc_child_list The list of watchers. */
     protected $watchers;
 
+    /** @var \stored_file|null The ICS file statically cached, or null when not fetched, or false when does not exist. */
+    protected $icsfilecache = null;
+
     /**
      * get_table
      *
@@ -103,11 +106,79 @@ class slot extends mvc_child_record_model {
         parent::save();
         $this->appointments->save_children();
         $this->update_calendar();
+        $this->delete_ics_file();
 
         // Notify the watchers.
         if ($notifywatchers) {
             $this->notify_watchers();
         }
+    }
+
+    /**
+     * Generate ICS content.
+     *
+     * @return string|null
+     */
+    protected function generate_ics_content() {
+        if (!$this->get_id()) {
+            throw new \coding_exception('The slot must be saved before an ICS file can be created.');
+        }
+
+        global $CFG;
+        require_once($CFG->libdir . '/bennu/bennu.inc.php');
+
+        $scheduler = $this->get_scheduler();
+        $context = $scheduler->get_context();
+
+        $ical = new \iCalendar();
+        $ical->add_property('method', 'PUBLISH');
+        $ical->add_property('prodid', '-//Moodle Pty Ltd//NONSGML Moodle Version ' . $CFG->version . '//EN');
+        $ev = new \iCalendar_event();
+
+        $hostaddress = preg_replace('@^https?://@', '', $CFG->wwwroot);
+        $ev->add_property('uid', "scheduler_{$scheduler->get_id()}_{$this->get_id()}" . '@' . $hostaddress);
+        $ev->add_property('summary', format_string($scheduler->name, true, ['context' => $context]));
+
+        $intro = $scheduler->intro;
+        if (!empty($intro)) {
+            $ev->add_property('description', html_to_text(format_text($intro, $scheduler->introformat, ['context' => $context])));
+        }
+
+        $ev->add_property('class', 'PUBLIC');
+        $ev->add_property('last-modified', \Bennu::timestamp_to_datetime($this->timemodified));
+        $ev->add_property('dtstamp', \Bennu::timestamp_to_datetime());
+
+        $location = $this->appointmentlocation;
+        if (!empty($location)) {
+            $ev->add_property('location', $location);
+        }
+
+        $ev->add_property('dtstart', \Bennu::timestamp_to_datetime($this->starttime));
+        $ev->add_property('dtend', \Bennu::timestamp_to_datetime($this->get_endtime()));
+        $ical->add_component($ev);
+
+        return $ical->serialize() ?: null;
+    }
+
+    /**
+     * Create the ICS file.
+     *
+     * @return stored_file
+     */
+    protected function create_ics_file() {
+        $fs = get_file_storage();
+        $scheduler = $this->get_scheduler();
+
+        $filerecord = new \stdClass();
+        $filerecord->component = 'mod_scheduler';
+        $filerecord->contextid = $scheduler->get_context()->id;
+        $filerecord->filearea = 'ics';
+        $filerecord->filepath = '/';
+        $filerecord->filename = 'event.ics';
+        $filerecord->itemid = $this->get_id();
+
+        $icscontent = $this->generate_ics_content();
+        return $fs->create_file_from_string($filerecord, $icscontent ?: '');
     }
 
     /**
@@ -200,6 +271,24 @@ class slot extends mvc_child_record_model {
      */
     public function get_endtime() {
         return $this->data->starttime + $this->data->duration * MINSECS;
+    }
+
+    /**
+     * Get the stored ICS file.
+     *
+     * @return stored_file|null
+     */
+    public function get_ics_file() {
+        if ($this->icsfilecache === null) {
+            $fs = get_file_storage();
+            $context = $this->get_scheduler()->get_context();
+            $icsfile = $fs->get_file($context->id, 'mod_scheduler', 'ics', $this->get_id(), '/', 'event.ics');
+            if (!$icsfile) {
+                $icsfile = $this->create_ics_file();
+            }
+            $this->icsfilecache = $icsfile;
+        }
+        return $this->icsfilecache && $this->icsfilecache->get_filesize() > 0 ? $this->icsfilecache : null;
     }
 
     /**
@@ -505,6 +594,7 @@ class slot extends mvc_child_record_model {
         $this->clear_calendar();
         $fs = get_file_storage();
         $fs->delete_area_files($this->get_scheduler()->get_context()->id, 'mod_scheduler', 'slotnote', $this->get_id());
+        $this->delete_ics_file();
         parent::delete();
     }
 
@@ -516,6 +606,14 @@ class slot extends mvc_child_record_model {
         $this->clear_calendar();
     }
 
+    /**
+     * Delete the ICS file, if any.
+     */
+    public function delete_ics_file() {
+        $this->icsfilecache = null;
+        $fs = get_file_storage();
+        $fs->delete_area_files($this->get_scheduler()->get_context()->id, 'mod_scheduler', 'ics', $this->get_id());
+    }
 
     /*
      * The event code is SSstu (for a student event) or SSsup (for a teacher event).

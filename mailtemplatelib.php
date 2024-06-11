@@ -43,6 +43,8 @@ class scheduler_messenger {
      * @return string
      */
     protected static function get_message_language($user, $course) {
+        global $CFG;
+
         if ($course && ! empty ($course->id) && $course->id != SITEID && !empty($course->lang)) {
             // Course language overrides user language.
             $return = $course->lang;
@@ -99,11 +101,12 @@ class scheduler_messenger {
      *            the mail template name as in language config file (without "_html" part)
      * @param array $parameters
      *            a hash containing pairs of parm => data to replace in template
+     * @param stored_file|null An attachment.
      * @return bool|int Returns message id if message was sent OK, "false" if there was another sort of error.
      */
     public static function send_message_from_template($modulename, $messagename, $isnotification,
                                                       stdClass $sender, stdClass $recipient, $course,
-                                                      $template, array $parameters) {
+                                                      $template, array $parameters, $attachment = null) {
         global $CFG;
         global $SITE;
 
@@ -138,6 +141,11 @@ class scheduler_messenger {
         $message->courseid = $course->id;
         $message->contexturl = $defaultvars['COURSE_URL'];
         $message->contexturlname = $course->fullname;
+
+        if ($attachment) {
+            $message->attachment = $attachment;
+            $message->attachname = $attachment->get_filename();
+        }
 
         $msgid = message_send($message);
         return $msgid;
@@ -213,7 +221,14 @@ class scheduler_messenger {
                                                   stdClass $sender, stdClass $recipient,
                                                   stdClass $teacher, stdClass $student, stdClass $course) {
         $vars = self::get_scheduler_variables($slot->get_scheduler(), $slot, $teacher, $student, $course, $recipient);
-        self::send_message_from_template('mod_scheduler', $messagename, 1, $sender, $recipient, $course, $template, $vars);
+
+        $attachment = null;
+        if ($template === 'reminder') {
+            $attachment = $slot->get_ics_file();
+        }
+
+        self::send_message_from_template('mod_scheduler', $messagename, 1, $sender, $recipient, $course,
+            $template, $vars, $attachment);
     }
 
 }

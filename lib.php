@@ -109,6 +109,10 @@ function scheduler_update_instance($data, $mform) {
         \core_completion\api::update_completion_date_event($data->coursemodule, 'scheduler', $data->id, $completiontimeexpected);
     }
 
+    // Delete all pre-prepared ICS files.
+    $fs = get_file_storage();
+    $fs->delete_area_files($context->id, 'mod_scheduler', 'ics');
+
     return true;
 }
 
