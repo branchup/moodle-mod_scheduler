@@ -24,6 +24,11 @@
 
 namespace mod_scheduler\model;
 
+use core_date;
+use DateTimeImmutable;
+use DateTimeZone;
+use moodle_url;
+
 /**
  * A class for representing a scheduler slot.
  *
@@ -271,6 +276,105 @@ class slot extends mvc_child_record_model {
      */
     public function get_endtime() {
         return $this->data->starttime + $this->data->duration * MINSECS;
+    }
+
+    /**
+     * Get add to Google Calendar URL.
+     *
+     * @return moodle_url
+     */
+    public function get_add_to_google_calendar_url() {
+        $scheduler = $this->get_scheduler();
+
+        $starttime = new DateTimeImmutable("@{$this->starttime}");
+        $endtime = new DateTimeImmutable("@{$this->get_endtime()}");
+        $url = new moodle_url('https://calendar.google.com/calendar/render', [
+            'action' => 'TEMPLATE',
+            'text' => format_string($scheduler->name, true, ['context' => $scheduler->get_context()]),
+            'dates' => implode('/', [
+                $starttime->setTimezone(new DateTimeZone(('UTC')))->format('Ymd\THis\Z'),
+                $endtime->setTimezone(new DateTimeZone(('UTC')))->format('Ymd\THis\Z'),
+            ])
+        ]);
+
+        $intro = $scheduler->intro;
+        if (!empty($intro)) {
+            $intro = html_to_text(format_text($intro, $scheduler->introformat, ['context' => $scheduler->get_context()]));
+            $url->param('details', $intro);
+        }
+
+        $location = $this->appointmentlocation;
+        if (!empty($location)) {
+            $url->param('location', $location);
+        }
+
+        return $url;
+    }
+
+    /**
+     * Get add to Office 365 URL.
+     *
+     * @return moodle_url
+     */
+    public function get_add_to_office365_url() {
+        $scheduler = $this->get_scheduler();
+
+        $starttime = new DateTimeImmutable("@{$this->starttime}");
+        $endtime = new DateTimeImmutable("@{$this->get_endtime()}");
+        $url = new moodle_url('https://outlook.office.com/calendar/0/action/compose', [
+            'path' => "/calendar/action/compose",
+            'rru' => "addevent",
+            'startdt' => $starttime->setTimezone(core_date::get_server_timezone_object())->format('Y-m-d\TH:i:s'),
+            'enddt' => $endtime->setTimezone(core_date::get_server_timezone_object())->format('Y-m-d\TH:i:s'),
+            'subject' => format_string($scheduler->name, true, ['context' => $scheduler->get_context()]),
+            'allday' => false,
+        ]);
+
+        $intro = $scheduler->intro;
+        if (!empty($intro)) {
+            $intro = html_to_text(format_text($intro, $scheduler->introformat, ['context' => $scheduler->get_context()]));
+            $url->param('body', $intro);
+        }
+
+        $location = $this->appointmentlocation;
+        if (!empty($location)) {
+            $url->param('location', $location);
+        }
+
+        return $url;
+    }
+
+    /**
+     * Get add to Outlook URL.
+     *
+     * @return moodle_url
+     */
+    public function get_add_to_outlook_url() {
+        $scheduler = $this->get_scheduler();
+
+        $starttime = new DateTimeImmutable("@{$this->starttime}");
+        $endtime = new DateTimeImmutable("@{$this->get_endtime()}");
+        $url = new moodle_url('https://outlook.live.com/calendar/0/action/compose', [
+            'path' => "/calendar/action/compose",
+            'rru' => "addevent",
+            'startdt' => $starttime->setTimezone(core_date::get_server_timezone_object())->format('Y-m-d\TH:i:s'),
+            'enddt' => $endtime->setTimezone(core_date::get_server_timezone_object())->format('Y-m-d\TH:i:s'),
+            'subject' => format_string($scheduler->name, true, ['context' => $scheduler->get_context()]),
+            'allday' => false,
+        ]);
+
+        $intro = $scheduler->intro;
+        if (!empty($intro)) {
+            $intro = html_to_text(format_text($intro, $scheduler->introformat, ['context' => $scheduler->get_context()]));
+            $url->param('body', $intro);
+        }
+
+        $location = $this->appointmentlocation;
+        if (!empty($location)) {
+            $url->param('location', $location);
+        }
+
+        return $url;
     }
 
     /**

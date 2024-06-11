@@ -714,7 +714,9 @@ with <strong><a href="{$a->attendant_url}">{$a->attendant}</a></strong>.</p>
 
 <p>Location: <strong>{$a->location}</strong></p>
 
-<p>If you wish to make amendments to this appointment please return to <a href="{$a->scheduler_url}">{$a->module}</a>.</p>';
+<p>If you wish to make amendments to this appointment please return to <a href="{$a->scheduler_url}">{$a->module}</a>.</p>
+
+<p>Add to <a href="{$a->add_to_google_url}">Google Calendar</a>, <a href="{$a->add_to_outlook_url}">Outlook.com</a>, <a href="{$a->add_to_office365_url}">Office 365</a>.</p>';
 
 $string['email_slotopenedup_html'] = '<p>An appointment has become available for a slot on {$a->date} at {$a->time} with the {$a->staffrole} {$a->attendant}.</p>
 <p>This is regarding the activity titled &quot;<a href="{$a->scheduler_url}"><em>{$a->module}</em></a>&quot;, in the course &quot;<a href="{$a->course_url}"><em>{$a->course_short}: {$a->course}</em></a>&quot; on the website &quot;<a href="{$a->site_url}"><em>{$a->site}</em></a>&quot;.</p>';

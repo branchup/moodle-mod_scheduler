@@ -187,6 +187,9 @@ class scheduler_messenger {
             $vars['TIME']     = userdate($slot->starttime, get_string('strftimetime'), $tz);
             $vars['ENDTIME']  = userdate($slot->endtime, get_string('strftimetime'), $tz);
             $vars['LOCATION'] = format_string($slot->appointmentlocation);
+            $vars['ADD_TO_GOOGLE_URL'] = $slot->get_add_to_google_calendar_url()->out();
+            $vars['ADD_TO_OUTLOOK_URL'] = $slot->get_add_to_outlook_url()->out();
+            $vars['ADD_TO_OFFICE365_URL'] = $slot->get_add_to_office365_url()->out();
         }
         if ($teacher) {
             $vars['ATTENDANT']     = fullname($teacher);
