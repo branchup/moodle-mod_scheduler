@@ -509,10 +509,7 @@ class external extends external_api {
 
         // Notify the student.
         if ($scheduler->allownotifications) {
-            $student = core_user::get_user($app->studentid, '*', MUST_EXIST);
-            $teacher = core_user::get_user($slot->teacherid, '*', MUST_EXIST);
-            scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'teachercancelled',
-                $teacher, $student, $teacher, $student, $scheduler->get_courserec());
+            scheduler_messenger::send_cancellation_notification($app, false);
         }
 
         $slot->save();

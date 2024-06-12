@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/mod/scheduler/mailtemplatelib.php');
+
 /**
  * Add a session (confirmed action) from data entered into the add session form
  * @param \mod_scheduler\model\scheduler $scheduler
@@ -267,25 +269,20 @@ switch ($action) {
         $slot = $scheduler->get_slot($slotid);
         $permissions->ensure($permissions->can_edit_slot($slot));
 
-        $oldstudents = array();
+        $cancelledapps = [];
         foreach ($slot->get_appointments() as $app) {
-            $oldstudents[] = $app->studentid;
             $slot->remove_appointment($app);
+            $cancelledapps[] = $app;
         }
-        // Notify the student.
+        $slot->save();
+
+        // Notify the students.
         if ($scheduler->allownotifications) {
-            foreach ($oldstudents as $oldstudent) {
-                include_once($CFG->dirroot.'/mod/scheduler/mailtemplatelib.php');
-
-                $student = $DB->get_record('user', array('id' => $oldstudent));
-                $teacher = $DB->get_record('user', array('id' => $slot->teacherid));
-
-                scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'teachercancelled',
-                                        $teacher, $student, $teacher, $student, $COURSE);
+            foreach ($cancelledapps as $cancelledapp) {
+                scheduler_messenger::send_cancellation_notification($cancelledapp, false);
             }
         }
 
-        $slot->save();
         redirect($viewurl);
         break;
 

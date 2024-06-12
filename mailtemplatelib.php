@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_scheduler\model\appointment;
 use \mod_scheduler\model\scheduler;
 use \mod_scheduler\model\slot;
 
@@ -232,6 +233,45 @@ class scheduler_messenger {
 
         self::send_message_from_template('mod_scheduler', $messagename, 1, $sender, $recipient, $course,
             $template, $vars, $attachment);
+    }
+
+    /**
+     * Send cancellation notification.
+     *
+     * @param appointment $appointment The cancelled appointment, may no longer exist in database.
+     * @param bool $iscancelledbystudent Whether the cancellation was initiated by the student.
+     */
+    public static function send_cancellation_notification(appointment $appointment, $iscancelledbystudent) {
+        $studentid = $appointment->studentid;
+        $slot = $appointment->get_slot();
+        $scheduler = $slot->get_scheduler();
+        $course = $scheduler->get_courserec();
+
+        $student = core_user::get_user($studentid);
+        $teacher = core_user::get_user($slot->teacherid);
+        $noreply = core_user::get_noreply_user();
+
+        if (!$student || !$teacher) {
+            return;
+        }
+
+        // When cancelled by the student, notify both.
+        if ($iscancelledbystudent) {
+
+            // Sending the notification to the teacher.
+            scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'cancelled',
+                $student, $teacher, $teacher, $student, $course);
+
+            // Sending a confirmation to the student.
+            scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'cancelledown',
+                $noreply, $student, $teacher, $student, $course);
+
+            return;
+        }
+
+        // This must be cancelled by the teacher, notify the student.
+        scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'teachercancelled',
+            $teacher, $student, $teacher, $student, $course);
     }
 
 }

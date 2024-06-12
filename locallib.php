@@ -477,13 +477,8 @@ function mod_scheduler_cancel_slot($scheduler, $slotid, $userid, $groupid) {
     foreach ($userstocancel as $userid) {
         if ($appointment = $slot->get_student_appointment($userid)) {
             $scheduler->delete_appointment($appointment->id);
-
-            // Notify the teacher.
             if ($scheduler->allownotifications) {
-                $student = $DB->get_record('user', array('id' => $userid));
-                $teacher = $DB->get_record('user', array('id' => $slot->teacherid));
-                scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'cancelled',
-                                                            $student, $teacher, $teacher, $student, $scheduler->get_courserec());
+                scheduler_messenger::send_cancellation_notification($appointment, true);
             }
             \mod_scheduler\event\booking_removed::create_from_slot($slot)->trigger();
         }

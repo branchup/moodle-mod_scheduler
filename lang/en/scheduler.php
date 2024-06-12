@@ -697,6 +697,30 @@ with the student <strong><a href="{$a->attendee_url}">{$a->attendee}</a></strong
 
 <p><strong><span class="error">has been cancelled or moved</span></strong>.</p>';
 
+$string['email_cancelledown_subject'] = '{$a->course_short}: Appointment cancelled';
+
+$string['email_cancelledown_plain'] = 'Your appointment on {$a->date} at {$a->time},
+with the {$a->staffrole} {$a->attendant} for course:
+
+{$a->course_short}: {$a->course}
+
+in the scheduler titled "{$a->module}" on the website: {$a->site}
+
+has been cancelled.
+
+If you have added this to an external calendar, please ensure you remove this.';
+
+$string['email_cancelledown_html'] = '<p>Your appointment on <strong>{$a->date}</strong> at <strong>{$a->time} </strong>,<br/>
+with the {$a->staffrole} <strong><a href="{$a->attendant_url}">{$a->attendant}</a></strong> for course:</p>
+
+<p><strong>{$a->course_short}: <a href="{$a->course_url}">{$a->course}</a></strong></p>
+
+<p>in the scheduler "<em><a href="{$a->scheduler_url}">{$a->module}</a></em>" on the website: <strong><a href="{$a->site_url}">{$a->site}</a></strong></p>
+
+<p><strong><span class="error">has been cancelled</span></strong>.</p>
+
+<p>If you have added this to an external calendar, please ensure you remove this.</p>';
+
 $string['email_reminder_subject'] = '{$a->course_short}: Appointment reminder';
 
 $string['email_reminder_plain'] = 'You have an upcoming appointment
@@ -735,7 +759,9 @@ with the {$a->staffrole} {$a->attendant} for course:
 
 in the scheduler titled "{$a->module}" on the website: {$a->site}
 
-has been cancelled. Please apply for a new slot.';
+has been cancelled. Please apply for a new slot.
+
+If you have added this to an external calendar, please ensure you remove this.';
 
 $string['email_teachercancelled_html'] = '<p>Your appointment on <strong>{$a->date}</strong> at <strong>{$a->time} </strong>,<br/>
 with the {$a->staffrole} <strong><a href="{$a->attendant_url}">{$a->attendant}</a></strong> for course:</p>
@@ -744,7 +770,9 @@ with the {$a->staffrole} <strong><a href="{$a->attendant_url}">{$a->attendant}</
 
 <p>in the scheduler "<em><a href="{$a->scheduler_url}">{$a->module}</a></em>" on the website: <strong><a href="{$a->site_url}">{$a->site}</a></strong></p>
 
-<p><strong><span class="error">has been cancelled</span></strong>. Please apply for a new slot.</p>';
+<p><strong><span class="error">has been cancelled</span></strong>. Please apply for a new slot.</p>
+
+<p>If you have added this to an external calendar, please ensure you remove this.</p>';
 
 $string['email_invite_subject'] = 'Invitation: {$a->module}';
 $string['email_invite_html'] = '<p>Please choose a time slot for an appointment at:</p> <p>{$a->scheduler_url}</p>';

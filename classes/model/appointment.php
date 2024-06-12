@@ -115,7 +115,7 @@ class appointment extends mvc_child_record_model {
     /**
      * Retrieve the slot associated with this appointment
      *
-     * @return slot;
+     * @return slot
      */
     public function get_slot() {
         return $this->get_parent();
