@@ -227,12 +227,40 @@ class scheduler_messenger {
         $vars = self::get_scheduler_variables($slot->get_scheduler(), $slot, $teacher, $student, $course, $recipient);
 
         $attachment = null;
-        if ($template === 'reminder') {
+        if ($template === 'reminder' || $template === 'appliedown') {
             $attachment = $slot->get_ics_file();
         }
 
         self::send_message_from_template('mod_scheduler', $messagename, 1, $sender, $recipient, $course,
             $template, $vars, $attachment);
+    }
+
+    /**
+     * Send booking notification.
+     *
+     * @param appointment $appointment The appointment.
+     */
+    public static function send_booking_notification(appointment $appointment) {
+        $studentid = $appointment->studentid;
+        $slot = $appointment->get_slot();
+        $scheduler = $slot->get_scheduler();
+        $course = $scheduler->get_courserec();
+
+        $student = core_user::get_user($studentid);
+        $teacher = core_user::get_user($slot->teacherid);
+        $noreply = core_user::get_noreply_user();
+
+        if (!$student || !$teacher) {
+            return;
+        }
+
+        // Sending the notification to the teacher.
+        scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'applied',
+            $student, $teacher, $teacher, $student, $course);
+
+        // Sending a confirmation to the student.
+        scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'appliedown',
+            $noreply, $student, $teacher, $student, $course);
     }
 
     /**

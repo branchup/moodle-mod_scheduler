@@ -677,6 +677,22 @@ by the student <a href="{$a->attendee_url}">{$a->attendee}</a> for the course:
 
 <p>using the scheduler titled "<em><a href="{$a->scheduler_url}">{$a->module}</a></em>" on the website: <a href="{$a->site_url}">{$a->site}</a>.</p>';
 
+$string['email_appliedown_subject'] = '{$a->course_short}: Appointment confirmation';
+$string['email_appliedown_plain'] = 'Your appointment has been scheduled on {$a->date} from {$a->time} to {$a->endtime} with {$a->attendant}.
+
+Location: {$a->location}
+
+If you wish to make amendments to this appointment please return to "{$a->module}":
+{$a->scheduler_url}';
+$string['email_appliedown_html'] = '<p>Your appointment has been scheduled on <strong>{$a->date}</strong>
+from <strong>{$a->time}</strong> to <strong>{$a->endtime}</strong> with <strong><a href="{$a->attendant_url}">{$a->attendant}</a></strong>.</p>
+
+<p>Location: <strong>{$a->location}</strong></p>
+
+<p>If you wish to make amendments to this appointment please return to <a href="{$a->scheduler_url}">{$a->module}</a>.</p>
+
+<p>Add to <a href="{$a->add_to_google_url}">Google Calendar</a>, <a href="{$a->add_to_outlook_url}">Outlook.com</a>, <a href="{$a->add_to_office365_url}">Office 365</a>. Note that events imported to external calendars will not be updated.</p>';
+
 $string['email_cancelled_subject'] = '{$a->course_short}: Appointment cancelled or moved by a student';
 
 $string['email_cancelled_plain'] = 'Your appointment on  {$a->date} at {$a->time},

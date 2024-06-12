@@ -429,13 +429,10 @@ function mod_scheduler_book_slot($scheduler, $slotid, $userid, $groupid, $formda
 
         \mod_scheduler\event\booking_added::create_from_slot($slot)->trigger();
 
-        // Notify the teacher.
         if ($scheduler->allownotifications) {
-            $student = $DB->get_record('user', array('id' => $appointment->studentid), '*', MUST_EXIST);
-            $teacher = $DB->get_record('user', array('id' => $slot->teacherid), '*', MUST_EXIST);
-            scheduler_messenger::send_slot_notification($slot, 'bookingnotification', 'applied',
-                    $student, $teacher, $teacher, $student, $scheduler->get_courserec());
+            scheduler_messenger::send_booking_notification($appointment);
         }
+
     }
 
     $slot->save();
