@@ -77,6 +77,38 @@ if ($ADMIN->fulltree) {
                     get_string('revealteachernotes_desc', 'scheduler'),
                     0));
 
+    $settings->add(new admin_setting_configselect('mod_scheduler/hideuntiltime',
+        get_string('hideuntiltime', 'scheduler'),
+        get_string('hideuntiltime_desc', 'scheduler'),
+        6,
+        [
+            0 => '00:00 (12am)',
+            1 => '01:00 (1am)',
+            2 => '02:00 (2am)',
+            3 => '03:00 (3am)',
+            4 => '04:00 (4am)',
+            5 => '05:00 (5am)',
+            6 => '06:00 (6am)',
+            7 => '07:00 (7am)',
+            8 => '08:00 (8am)',
+            9 => '09:00 (9am)',
+            10 => '10:00 (10am)',
+            11 => '11:00 (11am)',
+            12 => '12:00 (12pm)',
+            13 => '13:00 (1pm)',
+            14 => '14:00 (2pm)',
+            15 => '15:00 (3pm)',
+            16 => '16:00 (4pm)',
+            17 => '17:00 (5pm)',
+            18 => '18:00 (6pm)',
+            19 => '19:00 (7pm)',
+            20 => '20:00 (8pm)',
+            21 => '21:00 (9pm)',
+            22 => '22:00 (10pm)',
+            23 => '23:00 (11pm)',
+        ],
+    ));
+
     $settings->add(new admin_setting_heading('schedulerdefaultsettingshdr', get_string('defaultsettings', 'mod_scheduler'),
         get_string('defaultsettings_desc', 'mod_scheduler')));
 

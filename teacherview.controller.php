@@ -86,8 +86,8 @@ function scheduler_action_doaddsession($scheduler, $formdata, moodle_url $return
             if ($data->hideuntilrel == 0) {
                 $slot->hideuntil = time();
             } else {
-                $slot->hideuntil = make_timestamp($eventdate['year'], $eventdate['mon'], $eventdate['mday'], 6, 0) -
-                                    $data->hideuntilrel;
+                $hideuntildt = mod_scheduler_compute_relative_hide_until($slot->starttime, ceil($data->hideuntilrel / DAYSECS));
+                $slot->hideuntil = $hideuntildt->getTimestamp();
             }
             if ($data->emaildaterel == -1) {
                 $slot->emaildate = 0;

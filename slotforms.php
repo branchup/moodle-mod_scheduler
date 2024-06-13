@@ -230,6 +230,7 @@ class scheduler_editslot_form extends scheduler_slotform_base {
 
         // Display slot from this date.
         $mform->addElement('date_selector', 'hideuntil', get_string('displayfrom', 'scheduler'));
+        $mform->addHelpButton('hideuntil', 'displayfrom', 'scheduler');
         $mform->setDefault('hideuntil', time());
 
         // Send e-mail reminder?
@@ -425,6 +426,11 @@ class scheduler_editslot_form extends scheduler_slotform_base {
             $i++;
         }
 
+        // Convert the timestamp into a relative date, otherwise the date will appear different
+        // than selected. That is because the time applied to the date is set in the admin settings
+        // and thus changes the timestamp when saved.
+        $data->hideuntil = mod_scheduler_adjust_hide_until_for_form($data->hideuntil);
+
         return $data;
     }
 
@@ -450,7 +456,7 @@ class scheduler_editslot_form extends scheduler_slotform_base {
         $slot->exclusivity = $data->exclusivityenable ? $data->exclusivity : 0;
         $slot->teacherid = $data->teacherid;
         $slot->appointmentlocation = $data->appointmentlocation;
-        $slot->hideuntil = $data->hideuntil;
+        $slot->hideuntil = mod_scheduler_adjust_hide_until($data->starttime, $data->hideuntil)->getTimestamp();
         $slot->emaildate = $data->emaildate;
         $slot->timemodified = time();
 
@@ -620,6 +626,7 @@ class scheduler_addsession_form extends scheduler_slotform_base {
             $hideuntilsel[WEEKSECS * $i] = get_string('xweeksbefore', 'scheduler', $i);
         }
         $mform->addElement('select', 'hideuntilrel', get_string('displayfrom', 'scheduler'), $hideuntilsel);
+        $mform->addHelpButton('hideuntilrel', 'displayfrom', 'scheduler');
         $mform->setDefault('hideuntilsel', 0);
 
         // E-mail reminder from.

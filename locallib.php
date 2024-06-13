@@ -505,3 +505,77 @@ function mod_scheduler_save_booking_data($appointment, $formdata) {
 
     $appointment->save();
 }
+
+/**
+ * Adjust the hide until date based on start time.
+ *
+ * We expect the hideuntil timestamp to have been generated from the current user's timezone at 00:00.
+ * This is because the forms (and CSV import) calculate a timestamp at midnight based on the date
+ * provided by the user in their own time zone. This timestamp is then passed to this function
+ * which applies the time setting based on the admin settings.
+ *
+ * @param int $starttime The start time.
+ * @param int $hideuntil The desired hide until.
+ * @return DateTimeImmutable
+ */
+function mod_scheduler_adjust_hide_until(int $starttime, int $hideuntil) {
+    $timeofday = (int) get_config('mod_scheduler', 'hideuntiltime');
+    $dt = (new DateTimeImmutable('@' . $hideuntil))
+        ->setTimezone(core_date::get_server_timezone_object())
+        ->setTime($timeofday, 0, 0, 0);
+    $startdt = new DateTimeImmutable('@' . $starttime);
+    if ($dt > $startdt) {
+        $dt = $dt->sub(new DateInterval('P1D'))->setTime($timeofday, 0, 0, 0);
+    }
+    return $dt;
+}
+
+/**
+ * Adjust the hide until for form.
+ *
+ * We use a form element that only shows a date, and as such it returns a timestamp of the date
+ * in the user's timezone at midnight. In order for the form to work correctly, we need to adjust
+ * the timestamp in anticipation of a later call to {@see mod_scheduler_adjust_hide_until}.
+ *
+ * This means that the date displayed in the form may not be exactly the date from which the
+ * slot will become visible, but it's the best we can do at the moment.
+ *
+ * @param int $hideuntil The hide until.
+ * @return int
+ */
+function mod_scheduler_adjust_hide_until_for_form(int $hideuntil): int {
+    $serverdt = (new DateTimeImmutable('@' . $hideuntil))->setTimezone(core_date::get_server_timezone_object());
+    $userdt = (new DateTimeImmutable('@' . $hideuntil))->setTimezone(core_date::get_user_timezone_object());
+
+    if ($serverdt->getOffset() === $userdt->getOffset()) {
+        return $userdt->setTime(0, 0, 0, 0)->getTimestamp();
+    }
+
+    $userdt = $userdt->setTime(0, 0, 0, 0);
+    if ($userdt < $serverdt) {
+        $userdt = $userdt->add(new DateInterval('P1D'))->setTime(0, 0, 0, 0);
+    } else {
+        $userdt = $userdt->sub(new DateInterval('P1D'))->setTime(0, 0, 0, 0);
+    }
+
+    return $userdt->getTimestamp();
+}
+
+/**
+ * Compute the relative hide until date.
+ *
+ * @param int $starttime Start time.
+ * @param int $ndays Number of days relative to the start time.
+ * @return DateTimeImmutable
+ */
+function mod_scheduler_compute_relative_hide_until(int $starttime, int $ndays) {
+    if ($ndays <= 1) {
+        return new DateTimeImmutable('now');
+    }
+    $timeofday = (int) get_config('mod_scheduler', 'hideuntiltime');
+    $dt = (new DateTimeImmutable('@' . $starttime))
+        ->setTimezone(core_date::get_server_timezone_object())
+        ->sub(new DateInterval('P' . $ndays . 'D'))
+        ->setTime($timeofday, 0, 0, 0);
+    return $dt;
+}

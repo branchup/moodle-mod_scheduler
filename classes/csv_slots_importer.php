@@ -25,9 +25,11 @@
 
 namespace mod_scheduler;
 
+use core_date;
 use core_user;
 use csv_import_reader;
-use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
 use mod_scheduler\local\iterator\csv_reader_iterator;
 use mod_scheduler\local\iterator\map_iterator;
 use mod_scheduler\model\scheduler;
@@ -54,6 +56,8 @@ class csv_slots_importer implements \IteratorAggregate {
     protected $resolvedteachers = [];
     /** @var scheduler The scheduler. */
     protected $scheduler;
+    /** @var DateTimeZone The time zone when parsing dates and times. */
+    protected $timezone;
 
     /**
      * Constructor.
@@ -66,6 +70,7 @@ class csv_slots_importer implements \IteratorAggregate {
         $this->scheduler = $scheduler;
         $this->permissions = $permissions;
         $this->cir = $cir;
+        $this->timezone = core_date::get_user_timezone_object();
     }
 
     /**
@@ -78,14 +83,14 @@ class csv_slots_importer implements \IteratorAggregate {
 
         // Mandatory columns.
         try {
-            $date = new DateTime($line['date']);
+            $date = new DateTimeImmutable($line['date'], $this->timezone);
         } catch (\Exception $e) {
-            $date = new DateTime('@0');
+            $date = (new DateTimeImmutable('@0'))->setTimezone($this->timezone);
         }
         try {
-            $time = new DateTime($line['time']);
+            $time = new DateTimeImmutable($line['time'], $this->timezone);
         } catch (\Exception $e) {
-            $time = new DateTime('@0');
+            $time = (new DateTimeImmutable('@0'))->setTimezone($this->timezone);
         }
         $duration = (int) $line['duration'];
 
@@ -94,11 +99,15 @@ class csv_slots_importer implements \IteratorAggregate {
         $location = !empty($line['location']) ? $line['location'] : null;
         $teacher = !empty($line['teacher']) ? $line['teacher'] : null;
         $comment = !empty($line['comment']) ? $line['comment'] : null;
-        $displayfrom = !empty($line['displayfrom']) ? new DateTime($line['displayfrom']) : new DateTime();
+
+        $displayfrom = new DateTimeImmutable('now', $this->timezone);
+        if (!empty($line['displayfrom'])) {
+            $displayfrom = new DateTimeImmutable($line['displayfrom'], $this->timezone);
+        }
 
         // Massaging the data.
-        $date->setTime($time->format('H'), $time->format('i'), 0, 0);
-        $displayfrom->setTime(0, 0, 0, 0);
+        $date = $date->setTime($time->format('H'), $time->format('i'), 0, 0);
+        $displayfrom = mod_scheduler_adjust_hide_until($date->getTimestamp(), $displayfrom->setTime(0, 0, 0, 0)->getTimestamp());
 
         return (object) [
             'starttime' => $date,
