@@ -356,12 +356,15 @@ class external extends external_api {
             $groupids = array_intersect($groupids ?? [], array_keys($groupsicansee));
         }
 
+        $query = core_text::strtolower($query);
+
         // Retrieve students.
         $students = [];
         $availablestudents = $scheduler->get_available_students($groupids ?? 0);
         foreach ($availablestudents as $id => $student) {
             $fullname = fullname($student);
-            if (core_text::strpos($fullname, $query) !== false) {
+            $fullnamelower = core_text::strtolower($fullname);
+            if (core_text::strpos($fullnamelower, $query) !== false) {
                 $students[] = ['id' => $id, 'fullname' => $fullname];
             }
         }
