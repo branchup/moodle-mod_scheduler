@@ -569,7 +569,7 @@ function mod_scheduler_adjust_hide_until_for_form(int $hideuntil): int {
  * @return DateTimeImmutable
  */
 function mod_scheduler_compute_relative_hide_until(int $starttime, int $ndays) {
-    if ($ndays <= 1) {
+    if ($ndays < 1) {
         return new DateTimeImmutable('now');
     }
     $timeofday = (int) get_config('mod_scheduler', 'hideuntiltime');
