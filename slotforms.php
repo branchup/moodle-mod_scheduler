@@ -638,7 +638,7 @@ class scheduler_addsession_form extends scheduler_slotform_base {
         $mform->disabledIf('duration', 'divide', 'eq', '0');
 
         // Break between slots.
-        $this->add_minutes_field('break', 'break', 0, 'minutes');
+        $this->add_minutes_field('break', 'break', 5, 'minutes');
         $mform->disabledIf('break', 'divide', 'eq', '0');
 
         // Force when overlap?
@@ -678,7 +678,7 @@ class scheduler_addsession_form extends scheduler_slotform_base {
 
         $mform->addElement('select', 'emaildaterel', get_string('emailreminder', 'scheduler'), $remindersel);
         $mform->addHelpButton('emaildaterel', 'emailreminder', 'mod_scheduler');
-        $mform->setDefault('remindersel', -1);
+        $mform->setDefault('emaildaterel', DAYSECS);
 
         $this->add_action_buttons();
 
