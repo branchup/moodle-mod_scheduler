@@ -535,7 +535,7 @@ if (!empty($filters)) {
 
 $sqlcount = $scheduler->count_slots_from_query_builder($qb);
 
-$pagesize = 25;
+$pagesize = 40;
 if ($offset == -1) {
     // When the user lands on the "all" page, navigate to the most relevant page first.
     if ($sqlcount > $pagesize && $tmode === 0) {

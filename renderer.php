@@ -665,8 +665,10 @@ class mod_scheduler_renderer extends plugin_renderer_base {
         $table = new html_table();
         $table->head  = array( get_string('date', 'scheduler'), get_string('start', 'scheduler'),
                         get_string('end', 'scheduler'), get_string('location', 'scheduler'),
-                        get_string('comments', 'scheduler'), s($booker->scheduler->get_teacher_name()),
-                        get_string('groupsession', 'scheduler'), '');
+                        // get_string('comments', 'scheduler'),
+                        s($booker->scheduler->get_teacher_name()),
+                        //get_string('groupsession', 'scheduler'),
+                        '');
         $table->align = array ('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
         $table->id = 'slotbookertable';
         $table->data = array();
@@ -707,17 +709,17 @@ class mod_scheduler_renderer extends plugin_renderer_base {
 
             $rowdata[] = format_string($slot->location);
 
-            $rowdata[] = $this->format_notes($slot->notes, $slot->notesformat, $booker->scheduler->get_context(),
-                                             'slotnote', $slot->slotid);
+            // $rowdata[] = $this->format_notes($slot->notes, $slot->notesformat, $booker->scheduler->get_context(),
+                                            //  'slotnote', $slot->slotid);
 
             $rowdata[] = $this->user_profile_link($booker->scheduler, $slot->teacher);
 
-            $groupinfo = $slot->bookedbyme ? get_string('complete', 'scheduler') : $slot->groupinfo;
-            if ($slot->otherstudents) {
-                $groupinfo .= $this->render($slot->otherstudents);
-            }
+            // $groupinfo = $slot->bookedbyme ? get_string('complete', 'scheduler') : $slot->groupinfo;
+            // if ($slot->otherstudents) {
+            //     $groupinfo .= $this->render($slot->otherstudents);
+            // }
 
-            $rowdata[] = $groupinfo;
+            // $rowdata[] = $groupinfo;
 
             if ($slot->canbook) {
                 $bookaction = $booker->scheduler->uses_bookingform() ? 'bookingform' : 'bookslot';
