@@ -214,11 +214,12 @@ class mod_scheduler_mod_form extends moodleform_mod {
     public function add_completion_rules() {
         $mform =& $this->_form;
 
-        $mform->addElement('checkbox', 'completionattended', get_string('completionattended', 'mod_scheduler'),
+        $fieldname = 'completionattended' . $this->get_suffix();
+        $mform->addElement('checkbox', $fieldname, get_string('completionattended', 'mod_scheduler'),
             get_string('completionattended_desc', 'mod_scheduler'));
-        $mform->addHelpButton('completionattended', 'completionattended', 'mod_scheduler');
+        $mform->addHelpButton($fieldname, 'completionattended', 'mod_scheduler');
 
-        return ['completionattended'];
+        return [$fieldname];
     }
 
 
@@ -229,7 +230,7 @@ class mod_scheduler_mod_form extends moodleform_mod {
      * @return bool
      */
     public function completion_rule_enabled($data) {
-        return !empty($data['completionattended']);
+        return !empty($data['completionattended' . $this->get_suffix()]);
     }
 
     /**
@@ -271,9 +272,18 @@ class mod_scheduler_mod_form extends moodleform_mod {
         if (!get_config('mod_scheduler', 'mixindivgroup') && !empty($data->groupbookings)) {
             $data->canwatch = 0;
         }
+
         // Ensure late bookings are disallowed when guard time is used.
         if (!empty($data->guardtime)) {
             $data->acceptlatebookings = 0;
+        }
+
+        // Ensure completion data is present, even if checkbox was not ticked.
+        if (!empty($data->completionunlocked)) {
+            $fieldname = 'completionattended' . $this->get_suffix();
+            if (empty($data->$fieldname)) {
+                $data->$fieldname = 0;
+            }
         }
     }
 

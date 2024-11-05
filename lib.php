@@ -770,6 +770,7 @@ function mod_scheduler_core_calendar_provide_event_action(calendar_event $event,
  * @param object $cm The course module.
  * @param int $userid The user ID.
  * @param bool $type The type of comparison (COMPLETION_AND or _OR), or the default return value.
+ * @deprecated Ineffective since Moodle 4.3. Refer to \mod_scheduler\completion\custom_completion instead.
  */
 function scheduler_get_completion_state($course, $cm, $userid, $type) {
     global $DB;
@@ -781,6 +782,36 @@ function scheduler_get_completion_state($course, $cm, $userid, $type) {
     if ($scheduler->completion_requires_attended()) {
         $hasattended = $scheduler->has_user_attended_any_slot($userid);
         $result = $type == COMPLETION_AND ? $result && $hasattended : $result || $hasattended;
+    }
+
+    return $result;
+}
+
+/**
+ * Get course module info.
+ *
+ * @param stdClass $coursemodule The coursemodule object.
+ * @return cached_cm_info|false The info.
+ */
+function scheduler_get_coursemodule_info($coursemodule) {
+    global $DB;
+
+    $params = ['id' => $coursemodule->instance];
+    $fields = 'id, name, intro, introformat, completionattended';
+    if (!$scheduler = $DB->get_record('scheduler', $params, $fields)) {
+        return false;
+    }
+
+    $result = new cached_cm_info();
+    $result->name = $scheduler->name;
+
+    if ($coursemodule->showdescription) {
+        $result->content = format_module_intro('scheduler', $scheduler, $coursemodule->id, false);
+    }
+
+    // Populate the custom completion rules if completion mode is automatic.
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $result->customdata['customcompletionrules']['completionattended'] = $scheduler->completionattended;
     }
 
     return $result;
