@@ -449,6 +449,18 @@ function xmldb_scheduler_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2023052418, 'scheduler');
     }
 
+    if ($oldversion < 2024080104) {
+
+        // Remove the null timemodified values.
+        $sql = "UPDATE {scheduler_appointment}
+                   SET timemodified = timecreated
+                 WHERE timemodified IS NULL";
+        $DB->execute($sql);
+
+        // Scheduler savepoint reached.
+        upgrade_mod_savepoint(true, 2024080104, 'scheduler');
+    }
+
     return true;
 
 }
