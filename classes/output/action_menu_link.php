@@ -16,7 +16,7 @@
 
 namespace mod_scheduler\output;
 
-use renderer_base;
+use core\output\renderer_base;
 
 /**
  * Action menu link.
@@ -27,7 +27,7 @@ use renderer_base;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class action_menu_link extends \action_menu_link {
+class action_menu_link extends \core\output\action_menu\link {
 
     /**
      * Export for template.
