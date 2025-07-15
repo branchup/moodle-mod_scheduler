@@ -24,6 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use core\output\pix_icon;
 use \mod_scheduler\model\scheduler;
 use \mod_scheduler\model\slot;
 use \mod_scheduler\model\appointment;
@@ -328,7 +329,7 @@ class scheduler_command_bar implements renderable {
      */
     public function add_group($title, array $actions) {
         $menu = new action_menu($actions);
-        $menu->actiontext = $title;
+        $menu->set_menu_trigger($title);
         $this->menus[] = $menu;
     }
 
@@ -374,10 +375,20 @@ class scheduler_command_bar implements renderable {
         if ($id) {
             $attributes['id'] = $id;
         }
-        $act = new action_menu_link($url, $pix, $title, false, $attributes);
         if ($confirmkey) {
-            $act->add_action(new confirm_action(get_string($confirmkey, 'scheduler')));
+            $attributes += [
+                'data-modal' => 'confirmation',
+                'data-modal-content-str' => json_encode([$confirmkey, 'mod_scheduler']),
+            ];
+            if ($iconkey === 't/delete') {
+                $attributes += [
+                    'data-modal-type' => 'delete',
+                    'data-modal-title-str' => json_encode([$titlekey, 'mod_scheduler']),
+                    'data-modal-yes-button-str' => json_encode(['delete', 'core']),
+                ];
+            }
         }
+        $act = new action_menu_link($url, $pix, $title, false, $attributes);
         return $act;
     }
 

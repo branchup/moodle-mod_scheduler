@@ -752,6 +752,8 @@ class mod_scheduler_renderer extends plugin_renderer_base {
      * @return string HTML
      */
     public function render_action_menu(action_menu $menu) {
+        // Negate this implementation from upstream.
+        return parent::render_action_menu($menu);
 
         // We don't want the class icon there!
         foreach ($menu->get_secondary_actions() as $action) {
@@ -976,7 +978,7 @@ class mod_scheduler_renderer extends plugin_renderer_base {
             $actions = '';
             if ($line->actions) {
                 $menu = new action_menu($line->actions);
-                $menu->actiontext = get_string('schedule', 'scheduler');
+                $menu->set_menu_trigger(get_string('schedule', 'scheduler'));
                 $actions = $this->render($menu);
             }
             $data[] = $actions;
