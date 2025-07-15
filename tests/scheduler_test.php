@@ -63,7 +63,7 @@ class scheduler_test extends \advanced_testcase {
     protected $slotid;
 
     /**
-     * @var int[] Appointment IDs used for testing.
+     * @var array all appointment ids involved in the scheduler
      */
     protected $appointmentids;
 

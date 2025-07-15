@@ -155,8 +155,8 @@ class appointment extends mvc_child_record_model {
      * @return boolean
      */
     public function has_studentnotes() {
-        $note = $this->studentnote ? trim(strip_tags($this->studentnote)) : '';
-        return $this->get_scheduler()->uses_studentnotes() && strlen($note) > 0;
+        return $this->get_scheduler()->uses_studentnotes() && !empty($this->studentnote) &&
+                strlen(trim(strip_tags($this->studentnote))) > 0;
     }
 
     /**

@@ -89,4 +89,12 @@ $functions = [
         'type' => 'write',
         'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile']
     ],
+    'mod_scheduler_studentid' => array(
+        'classname'   => 'mod_scheduler\external',
+        'methodname'  => 'studentid',
+        'description' => 'Retrieve the list of potential studentids.',
+        'type'        => 'read',
+        'ajax'          => true,
+        'services'    => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
+    ),
 ];

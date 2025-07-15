@@ -93,7 +93,7 @@ class privacy_test extends provider_testcase {
     protected $allstudents;
 
     /**
-     * @var int[] Appointment IDs used for testing.
+     * @var array all appointment ids involved in the scheduler
      */
     protected $appointmentids;
 
