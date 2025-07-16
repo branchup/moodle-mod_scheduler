@@ -194,24 +194,24 @@
 
             <%# slot.canwatchslot %>
                 <%^ slot.iswatching %>
-                    <ion-item button fill="outline" expand="block"
+                    <ion-button fill="outline" expand="block"
                                 core-site-plugins-call-ws
                                 name="mod_scheduler_watch_slot"
                                 [params]="{cmid: <% cmid %>, slotid: <% slot.id %>}"
                                 [preSets]="{getFromCache: 0, saveToCache: 0, typeExpected: 'boolean'}"
                                 refreshOnSuccess="true">
                             <%# str %>watchslot, mod_scheduler<%/ str %>
-                    </ion-item>
+                    </ion-button>
                 <%/ slot.iswatching %>
                 <%# slot.iswatching %>
-                    <ion-item button fill="outline" expand="block"
+                    <ion-button fill="outline" expand="block"
                                 core-site-plugins-call-ws
                                 name="mod_scheduler_unwatch_slot"
                                 [params]="{cmid: <% cmid %>, slotid: <% slot.id %>}"
                                 [preSets]="{getFromCache: 0, saveToCache: 0, typeExpected: 'boolean'}"
                                 refreshOnSuccess="true">
                             <%# str %>unwatchslot, mod_scheduler<%/ str %>
-                    </ion-item>
+                    </ion-button>
                 <%/ slot.iswatching %>
             <%/ slot.canwatchslot %>
         <%/ appointment %>
