@@ -457,7 +457,7 @@ class scheduler extends mvc_record_model {
      * @return bool whether booking instructions present
      */
     public function has_bookinginstructions() {
-        $instr = trim(strip_tags($this->data->bookinginstructions));
+        $instr = trim(strip_tags($this->data->bookinginstructions ?? ''));
         return $this->uses_bookingform() && strlen($instr) > 0;
     }
 
