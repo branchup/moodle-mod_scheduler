@@ -230,6 +230,45 @@ class slots_query_builder {
     }
 
     /**
+     * Filter by slot IDs.
+     *
+     * @param array $ids The slot IDs.
+     * @return void
+     */
+    public function filter_slot_ids(array $ids) {
+        global $DB;
+        if (empty($ids)) {
+            $this->wheres['filterslotids'] = '1=0';
+            return;
+        }
+        [$insql, $inparams] = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED, 'filterslotids');
+        $this->wheres['filterslotids'] = "{$this->prefix}id $insql";
+        $this->params += $inparams;
+    }
+
+    /**
+     * Filter only those with appointments.
+     *
+     * @return voi
+     */
+    public function filter_with_appointments() {
+        $this->wheres['withappointments'] = "EXISTS (SELECT 1
+                                   FROM {scheduler_appointment} a
+                                  WHERE a.slotid = {$this->prefix}id)";
+    }
+
+    /**
+     * Filter only those without appointments.
+     *
+     * @return voi
+     */
+    public function filter_without_appointments() {
+        $this->wheres['withoutappointments'] = "NOT EXISTS (SELECT 1
+                                   FROM {scheduler_appointment} a
+                                  WHERE a.slotid = {$this->prefix}id)";
+    }
+
+    /**
      * Get the joins.
      *
      * @return string

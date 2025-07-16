@@ -24,6 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_scheduler\form\slot_deletion;
 use \mod_scheduler\model\scheduler;
 use \mod_scheduler\permission\scheduler_permissions;
 
@@ -885,9 +886,13 @@ class mod_scheduler_renderer extends plugin_renderer_base {
 
             $actions = '';
             if ($slot->editable) {
-                $url = new moodle_url($slotman->actionurl, array('what' => 'deleteslot', 'slotid' => $slot->slotid));
-                $confirmdelete = new confirm_action(get_string('confirmdelete-one', 'scheduler'));
-                $actions .= $this->action_icon($url, new pix_icon('t/delete', get_string('delete')), $confirmdelete);
+                $url = new moodle_url('/mod/scheduler/view.php', ['id' => $slotman->scheduler->get_cmid()]);
+                $actions .= $this->action_icon($url, new pix_icon('t/delete', get_string('delete')), null, [
+                    'data-scheduler-action' => 'delete-slots',
+                    'data-scheduler-id' => $slotman->scheduler->id,
+                    'data-scheduler-slotids' => $slot->slotid,
+                    'data-delete-mode' => slot_deletion::DELETE_ONE,
+                ]);
 
                 $url = new moodle_url($slotman->actionurl, array('what' => 'updateslot', 'slotid' => $slot->slotid));
                 $actions .= $this->action_icon($url, new pix_icon('t/edit', get_string('edit')));

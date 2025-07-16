@@ -229,24 +229,13 @@ require_sesskey();
 switch ($action) {
     /************************************ Deleting a slot ***********************************************/
     case 'deleteslot':
-        $slotid = required_param('slotid', PARAM_INT);
-        $slot = $scheduler->get_slot($slotid);
-        $permissions->ensure($permissions->can_edit_slot($slot));
-        scheduler_action_delete_slots(array($slot), $action, $viewurl);
+        // Render the code inoperative, see form\slot_deletion instead.
+        redirect($viewurl);
         break;
     /************************************ Deleting multiple slots ***********************************************/
     case 'deleteslots':
-        $slotids = required_param('items', PARAM_SEQUENCE);
-        $slotids = explode(",", $slotids);
-        $slots = array();
-        foreach ($slotids as $slotid) {
-            if ($slotid > 0) {
-                $slot = $scheduler->get_slot($slotid);
-                $permissions->ensure($permissions->can_edit_slot($slot));
-                $slots[] = $slot;
-            }
-        }
-        scheduler_action_delete_slots($slots, $action, $viewurl);
+        // Render the code inoperative, see form\slot_deletion instead.
+        redirect($viewurl);
         break;
     /************************************ Students were seen ***************************************************/
     case 'saveseen':
@@ -310,27 +299,23 @@ switch ($action) {
 
     /************************************ Deleting all slots ***************************************************/
     case 'deleteall':
-        $permissions->ensure($permissions->can_edit_all_slots());
-        $slots = $scheduler->get_all_slots();
-        scheduler_action_delete_slots($slots, $action, $viewurl);
+        // Render the code inoperative, see form\slot_deletion instead.
+        redirect($viewurl);
         break;
     /************************************ Deleting unused slots *************************************************/
     case 'deleteunused':
-        $permissions->ensure($permissions->can_edit_own_slots());
-        $slots = $scheduler->get_slots_without_appointment($USER->id);
-        scheduler_action_delete_slots($slots, $action, $viewurl);
+        // Render the code inoperative, see form\slot_deletion instead.
+        redirect($viewurl);
         break;
     /************************************ Deleting unused slots (all teachers) ************************************/
     case 'deleteallunused':
-        $permissions->ensure($permissions->can_edit_all_slots());
-        $slots = $scheduler->get_slots_without_appointment();
-        scheduler_action_delete_slots($slots, $action, $viewurl);
+        // Render the code inoperative, see form\slot_deletion instead.
+        redirect($viewurl);
         break;
     /************************************ Deleting current teacher's slots ***************************************/
     case 'deleteonlymine':
-        $permissions->ensure($permissions->can_edit_own_slots());
-        $slots = $scheduler->get_slots_for_teacher($USER->id);
-        scheduler_action_delete_slots($slots, $action, $viewurl);
+        // Render the code inoperative, see form\slot_deletion instead.
+        redirect($viewurl);
         break;
     /************************************ Mark as seen now *******************************************************/
     case 'markasseennow':

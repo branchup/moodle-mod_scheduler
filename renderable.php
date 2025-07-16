@@ -393,6 +393,22 @@ class scheduler_command_bar implements renderable {
     }
 
     /**
+     * Creates an action menu link with an optional confirmation dialogue attached.
+     *
+     * @param moodle_url $url URL of the action
+     * @param string $titlekey key of the link title
+     * @param string $iconkey key of the icon to display
+     * @param array $attributes Additional attributes to add to the link
+     * @return action_menu_link the new action link
+     */
+    public function action_menu_link_with_attrs(moodle_url $url, $titlekey, $iconkey, $attributes = []) {
+        $title = get_string($titlekey, 'scheduler');
+        $pix = new pix_icon($iconkey, $title, 'core', ['class' => 'iconsmall', 'title' => '']);
+        $act = new action_menu_link($url, $pix, $title, false, $attributes);
+        return $act;
+    }
+
+    /**
      * Contructs a command bar
      */
     public function __construct() {
