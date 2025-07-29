@@ -22,12 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['cannotdeleteselectioncontainsfuturebookedslots'] = 'The selection includes upcoming slots that have students booked onto them. You **cannot delete** these without first revoking the booking.';
-$string['cannotdeleteslothasfuturebooked'] = 'The slot has students booked into it. You **cannot delete** it without first revoking the bookings.';
-$string['confirmdeleteemptyslots'] = 'You are about to delete **{$a->nslots} empty slot(s)**, are you sure?';
-$string['confirmdeleteselectioncontainspastbookedslots'] = 'You are about to delete **{$a->nslots} slot(s)**, some of which have been booked or attended by students in the past, **all data will be lost**. Are you sure?';
+$string['cannotdeleteselectioncontainsfuturebookedslots'] = 'The selection includes upcoming slots that have students booked onto them. **You cannot delete these without first Revoking the booking;** the student needs to be notified that the booking has been cancelled.';
+$string['cannotdeleteslothasfuturebooked'] = 'This upcoming slot has students booked onto it. **You cannot delete it without first Revoking the booking;** the student needs to be notified that the booking has been cancelled.';
+$string['confirmdeleteemptyslots'] = 'You are about to delete **{$a->nslots} empty or unused slot(s)**, are you sure?';
+$string['confirmdeleteselectioncontainspastbookedslots'] = 'You are about to delete **{$a->nslots} slot(s)**, some of which have been booked or attended by students in the past. **All data will be lost if you delete these slots**. Are you sure?';
 $string['confirmdeleteslot'] = 'Are you sure that you want to delete this slot?';
-$string['confirmdeleteslothaspastbooked'] = 'You are about to delete a slot booked or attended by a student in the past, **all data will be lost**. Are you sure?';
+$string['confirmdeleteslothaspastbooked'] = 'You are about to delete a slot booked or attended by a student in the past. **All data will be lost if you delete this slot**. Are you sure?';
 $string['confirmdeleteslots'] = 'You are about to delete **{$a->nslots} slot(s)**, are you sure?';
 $string['confirmdeletion'] = 'Confirm deletion';
 $string['noslotsinselection'] = 'The selection does not include any slots.';
