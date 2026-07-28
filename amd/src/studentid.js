@@ -60,7 +60,7 @@ define(['jquery', 'core/ajax', 'core/templates'], function($, Ajax, Templates) {
                 });
 
                 // Apply the label to the results.
-                return $.when.apply($.when, promises).then(function() {
+                return $.when.apply($.when, promises).then(function() { // eslint-disable-line
                     var args = arguments;
                     $.each(results, function(index, user) {
                         user._label = args[i];

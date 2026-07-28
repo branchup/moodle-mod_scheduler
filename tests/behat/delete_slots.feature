@@ -51,7 +51,7 @@ Feature: Teacher can delete slots
   Scenario: Teachers cannot delete individual future slots with bookings
     Given I am on the "scheduler1" "activity" page logged in as teacher1
     When I click on "Delete" "link" in the "1:00 PM" "table_row"
-    Then I should see "The slot has students booked into it" in the "Confirm deletion" "dialogue"
+    Then I should see "This upcoming slot has students booked onto it" in the "Confirm deletion" "dialogue"
     And the "button[data-action=save]" "css_element" should be disabled
 
   Scenario: Teachers can delete individual future slots with bookings after revoking them
@@ -59,7 +59,7 @@ Feature: Teacher can delete slots
     And I follow "All"
     And I should see "1:00 AM" in the "slotmanager" "table"
     And I click on "Delete" "link" in the "1:00 PM" "table_row"
-    And I should see "The slot has students booked into it" in the "Confirm deletion" "dialogue"
+    And I should see "This upcoming slot has students booked onto it" in the "Confirm deletion" "dialogue"
     And I click on "Cancel" "button" in the "Confirm deletion" "dialogue"
     And I click on "Revoke the appointment" "link" in the "1:00 PM" "table_row"
     And I click on "Yes" "button" in the "Confirmation" "dialogue"
@@ -105,7 +105,7 @@ Feature: Teacher can delete slots
     And I should not see "4:00 PM" in the "slotmanager" "table"
     And I click on "Delete slots" "link"
     When I click on "Delete my unused slots" "link"
-    Then I should see "You are about to delete 4 empty slot(s)" in the "Confirm deletion" "dialogue"
+    Then I should see "You are about to delete 4 empty or unused slot(s)" in the "Confirm deletion" "dialogue"
     And I click on "Delete" "button" in the "Confirm deletion" "dialogue"
     And I should see "4 slots have been deleted"
     And I should see "1:00 AM" in the "slotmanager" "table"
@@ -279,7 +279,7 @@ Feature: Teacher can delete slots
     And I should see "5:00 PM" in the "slotmanager" "table"
     And I click on "Delete slots" "link"
     When I click on "Delete unused slots" "link"
-    Then I should see "You are about to delete 6 empty slot(s)" in the "Confirm deletion" "dialogue"
+    Then I should see "You are about to delete 6 empty or unused slot(s)" in the "Confirm deletion" "dialogue"
     And I click on "Delete" "button" in the "Confirm deletion" "dialogue"
     And I should see "6 slots have been deleted"
     And I should see "1:00 AM" in the "slotmanager" "table"

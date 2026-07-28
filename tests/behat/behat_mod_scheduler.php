@@ -130,30 +130,12 @@ class behat_mod_scheduler extends behat_base {
      */
     public function i_add_the_upcoming_events_block_globally() {
 
-        $this->execute('behat_data_generators::the_following_entities_exist', array('users',
+        $this->execute('behat_data_generators::the_following_entities_exist', array('blocks',
                         new TableNode(array(
-                            array('username', 'firstname', 'lastname', 'email'),
-                            array('globalmanager1', 'GlobalManager', '1', 'globalmanager1@example.com')
+                            array('blockname', 'contextlevel', 'reference', 'pagetypepattern',
+                                    'showinsubcontexts', 'defaultregion'),
+                            array('calendar_upcoming', 'System', '', '*', '1', 'side-pre')
                         )) ) );
-
-        $this->execute('behat_data_generators::the_following_entities_exist', array('system role assigns',
-                        new TableNode(array(
-                            array('user', 'role'),
-                            array('globalmanager1', 'manager')
-                        )) ) );
-
-        $this->execute('behat_auth::i_log_in_as', 'globalmanager1');
-        $this->execute('behat_general::i_am_on_site_homepage');
-        $this->execute('behat_navigation::i_turn_editing_mode_on');
-        $this->execute('behat_blocks::i_add_the_block', 'Upcoming events');
-
-        $this->execute('behat_blocks::i_open_the_blocks_action_menu', 'Upcoming events');
-        $this->execute('behat_general::click_link', 'Configure Upcoming events block');
-        $this->execute('behat_forms::i_set_the_following_fields_to_these_values', new TableNode(array(
-                            array('Page contexts', 'Display throughout the entire site')
-                        )) );
-        $this->execute('behat_general::i_click_on', array('Save changes', 'button'));
-        $this->execute('behat_auth::i_log_out');
 
     }
 

@@ -166,4 +166,3 @@ Feature: Teacher can select a release date
       | hideuntil[day]    | 16       |
       | hideuntil[month]  | January  |
       | hideuntil[year]   | 2050     |
-

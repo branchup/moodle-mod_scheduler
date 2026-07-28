@@ -48,7 +48,7 @@ export const init = (baseurl) => {
  * @param {String} link
  * @param {String} baseurl
  */
-export const collect_selection = (link, baseurl) => {
+export const collect_selection = (link, baseurl) => { // eslint-disable-line
     let sellist = '';
     document.querySelectorAll(SELECTORS.SELECTBOX).forEach(function(box) {
         if (box.checked) {
